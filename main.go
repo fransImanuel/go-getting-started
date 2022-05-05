@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	os.Setenv("PORT", "3001")
 	port := os.Getenv("PORT")
 
 	if port == "" {
