@@ -71,8 +71,8 @@ func TestCall(db *sql.DB) gin.HandlerFunc {
 
 		defer rows.Close()
 		for rows.Next() {
-			if err := rows.Scan(&guitar.Id, &guitar.Brand_Id, &guitar.Name, &guitar.Price, &guitar.Back, &guitar.Side, &guitar.Neck,
-				&guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand_ID, &guitar.Guitar_Name, &guitar.Price,
+				&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
 				c.String(http.StatusInternalServerError,
 					fmt.Sprintf("Error scanning ticks: %q", err))
 				return
