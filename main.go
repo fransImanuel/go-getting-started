@@ -1,63 +1,17 @@
 package main
 
 import (
-	"bytes"
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/heroku/go-getting-started/Handler"
 	_ "github.com/heroku/x/hmetrics/onload"
 	_ "github.com/lib/pq"
 )
-
-func repeatHandler(r int) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var buffer bytes.Buffer
-		for i := 0; i < r; i++ {
-			buffer.WriteString("Hello from Go!\n")
-		}
-		c.String(http.StatusOK, buffer.String())
-	}
-}
-
-func dbFunc(db *sql.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if _, err := db.Exec("CREATE TABLE IF NOT EXISTS ticks (tick timestamp)"); err != nil {
-			c.String(http.StatusInternalServerError,
-				fmt.Sprintf("Error creating database table: %q", err))
-			return
-		}
-
-		if _, err := db.Exec("INSERT INTO ticks VALUES (now())"); err != nil {
-			c.String(http.StatusInternalServerError,
-				fmt.Sprintf("Error incrementing tick: %q", err))
-			return
-		}
-
-		rows, err := db.Query("SELECT tick FROM ticks")
-		if err != nil {
-			c.String(http.StatusInternalServerError,
-				fmt.Sprintf("Error reading ticks: %q", err))
-			return
-		}
-
-		defer rows.Close()
-		for rows.Next() {
-			var tick time.Time
-			if err := rows.Scan(&tick); err != nil {
-				c.String(http.StatusInternalServerError,
-					fmt.Sprintf("Error scanning ticks: %q", err))
-				return
-			}
-			c.String(http.StatusOK, fmt.Sprintf("Read from DB: %s\n", tick.String()))
-		}
-	}
-}
 
 func main() {
 	// os.Setenv("PORT", "3001")
@@ -88,9 +42,11 @@ func main() {
 		c.HTML(http.StatusOK, "index.tmpl.html", nil)
 	})
 
-	router.GET("/repeat", repeatHandler(repeat))
+	router.GET("/repeat", Handler.RepeatHandler(repeat))
 
-	router.GET("/db", dbFunc(db))
+	router.GET("/db", Handler.DbFunc(db))
+
+	router.GET("/test", Handler.TestCall(db))
 
 	router.Run(":" + port)
 }
