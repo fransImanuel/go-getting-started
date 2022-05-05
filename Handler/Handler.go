@@ -62,7 +62,7 @@ func TestCall(db *sql.DB) gin.HandlerFunc {
 		var guitar Model.Guitars
 		var guitars []Model.Guitars
 
-		rows, err := db.Query(`SELECT "Brand_Id", "Name", "Price", "Back", "Side", "Neck", "GuitarSize", "Description", "Image"  FROM guitars`)
+		rows, err := db.Query(`SELECT "Id","Brand_Id", "Name", "Price", "Back", "Side", "Neck", "GuitarSize", "Description", "Image"  FROM guitars`)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
 				fmt.Sprintf("Error reading ticks: %q", err))
