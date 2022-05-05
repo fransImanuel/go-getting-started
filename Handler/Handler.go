@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/heroku/go-getting-started/Model"
 )
 
 func DbFunc(db *sql.DB) gin.HandlerFunc {
@@ -56,9 +57,28 @@ func RepeatHandler(r int) gin.HandlerFunc {
 }
 
 func TestCall(db *sql.DB) gin.HandlerFunc {
-
 	return func(c *gin.Context) {
 
-		c.String(http.StatusOK, "Hello Test")
+		var guitar Model.Guitars
+		var guitars []Model.Guitars
+
+		rows, err := db.Query(`SELECT "Brand_Id", "Name", "Price", "Back", "Side", "Neck", "GuitarSize", "Description", "Image"  FROM guitars`)
+		if err != nil {
+			c.String(http.StatusInternalServerError,
+				fmt.Sprintf("Error reading ticks: %q", err))
+			return
+		}
+
+		defer rows.Close()
+		for rows.Next() {
+			if err := rows.Scan(&guitar); err != nil {
+				c.String(http.StatusInternalServerError,
+					fmt.Sprintf("Error scanning ticks: %q", err))
+				return
+			}
+			guitars = append(guitars, guitar)
+		}
+		c.JSON(200, guitars)
+		// c.String(http.StatusOK, fmt.Sprintf("Read from DB: %s\n", tick.String()))
 	}
 }
