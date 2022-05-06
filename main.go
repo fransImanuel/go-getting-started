@@ -50,5 +50,7 @@ func main() {
 
 	router.GET("/test", Handler.TestCall(db))
 
+	router.GET("/get/guitarbyfilter", Handler.GuitarByFilter(db))
+
 	router.Run(":" + port)
 }

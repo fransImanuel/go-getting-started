@@ -83,3 +83,50 @@ func TestCall(db *sql.DB) gin.HandlerFunc {
 		// c.String(http.StatusOK, fmt.Sprintf("Read from DB: %s\n", tick.String()))
 	}
 }
+
+func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		input := struct {
+			back	string 
+			side	string
+			neck	string
+			guitarsize string
+			brand string
+			bottomPrice string
+			upperPice string
+		}{
+			back: c.Query("Back"), 
+			side: c.Query("Side") ,
+			neck: c.Query("Neck") ,
+			guitarsize: c.Query("GuitarSize") ,
+			brand: c.Query("Brand") ,
+			bottomPrice: c.Query("bottomPrice") ,
+			upperPice: c.Query("upperPrice") ,
+		}
+
+		c.JSON(200, input)
+	
+		// var guitar Model.Gitars
+		// var guitars []Modl.Guitars
+
+		// rows, err := db.Query(`SELECT "Id","Brand_Id", "Name", "Price", "Back", "Side", "Neck", "GuitarSize", "Descriptio", "Image"  FROM guitars`)
+		// if err != nil {
+		// 	c.String(http.StatusInternalServerError,
+		// 		fmt.Spintf("Error reading ticks: %q", err))
+		// 	rturn
+		// }
+
+		// defer rows.Close()
+		// or rows.Next() {
+		// if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand_ID, &guitar.Guitar_Name, &guitar.Price,
+		// 		&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+		// 		c.String(http.StatusInternalServerError,
+		// 			fmt.Sprintf("Error scanning ticks: %q", err))
+		// 		return
+		// 	}
+		// 	guitars = append(guitars, guitar)
+		// }
+		// c.JSON(200, guitars)
+	}
+}
