@@ -91,25 +91,25 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		var guitars []Model.Guitars
 		// var Response Model.Response
 
-		Input := struct {
-			Back        string `json:"Back,omitempty"`
-			Side        string `json:"Side,omitempty"`
-			Neck        string `json:"Neck,omitempty"`
-			Guitarsize  string `json:"Guitarsize,omitempty"`
-			Brand       string `json:"Brand,omitempty"`
-			BottomPrice string `json:"bottomPrice,omitempty"`
-			UpperPice   string `json:"upperPrice,omitempty"`
-			Page        string `json:"Page,omitempt"`
-		}{
-			Back:        c.Query("Back"),
-			Side:        c.Query("Side"),
-			Neck:        c.Query("Neck"),
-			Guitarsize:  c.Query("GuitarSize"),
-			Brand:       c.Query("Brand"),
-			BottomPrice: c.Query("bottomPrice"),
-			UpperPice:   c.Query("upperPrice"),
-			Page:        c.Query("Page"),
-		}
+		// Input := struct {
+		// 	Back        string `json:"Back,omitempty"`
+		// 	Side        string `json:"Side,omitempty"`
+		// 	Neck        string `json:"Neck,omitempty"`
+		// 	Guitarsize  string `json:"Guitarsize,omitempty"`
+		// 	Brand       string `json:"Brand,omitempty"`
+		// 	BottomPrice string `json:"bottomPrice,omitempty"`
+		// 	UpperPice   string `json:"upperPrice,omitempty"`
+		// 	Page        string `json:"Page,omitempt"`
+		// }{
+		// 	Back:        c.Query("Back"),
+		// 	Side:        c.Query("Side"),
+		// 	Neck:        c.Query("Neck"),
+		// 	Guitarsize:  c.Query("GuitarSize"),
+		// 	Brand:       c.Query("Brand"),
+		// 	BottomPrice: c.Query("bottomPrice"),
+		// 	UpperPice:   c.Query("upperPrice"),
+		// 	Page:        c.Query("Page"),
+		// }
 
 		// fmt.Println("TEST")
 		// fmt.Println(Input)
