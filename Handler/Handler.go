@@ -128,11 +128,11 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			
 		`
 		// i, err := strconv.Atoi(Input.Page)
-		if err != nil {
-			c.String(http.StatusInternalServerError,
-			fmt.Sprintf("Error when convert page: %q", err))
-			return
-		}
+		// if err != nil {
+		// 	c.String(http.StatusInternalServerError,
+		// 	fmt.Sprintf("Error when convert page: %q", err))
+		// 	return
+		// }
 		// offset := i * 10
 		// fmt.Println(q+cond)
 		rows, err := db.Query(q,Input.Back)
