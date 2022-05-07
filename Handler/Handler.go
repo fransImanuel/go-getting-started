@@ -124,14 +124,14 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join woods w3 on (g."Neck" = w3."Wood_Id")
 			join sizes s on (g."GuitarSize" = s."Size_Id")
 			join brands b on (g."Brand_Id" = b."Brand_Id")
-			where w1."Wood_Id" = ? AND --back
-			w2."Wood_Id" = ? AND --side
-			w3."Wood_Id" = ? AND --neck
-			s."Rank" = ? AND --guitarsize
-			b."Rank" = ? AND --brand
-			(g."Price" >= ? AND g."Price" <= ?) --Price
+			where w1."Wood_Id" = ? AND 
+			w2."Wood_Id" = ? AND 
+			w3."Wood_Id" = ? AND 
+			s."Rank" = ? AND 
+			b."Rank" = ? AND 
+			(g."Price" >= ? AND g."Price" <= ?) 
 			ORDER BY g."Id"
-			offset ? rows fetch next 10 rows only; 
+			offset ? rows fetch next 10 rows only
 			
 		`
 		// i, err := strconv.Atoi(Input.Page)
