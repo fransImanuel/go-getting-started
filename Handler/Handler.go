@@ -149,8 +149,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 					fmt.Sprintf("Error scanning ticks: %q", err))
 					return
 			
-				guitars = append(guitars, guitar)
-			}
+				}
+			guitars = append(guitars, guitar)
 		}
 		c.JSON(200,guitars)
 	}
