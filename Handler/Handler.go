@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -135,7 +134,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 		// offset := i * 10
-		fmt.Println(q+cond)
+		// fmt.Println(q+cond)
 		rows, err := db.Query(q,Input.Back)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
