@@ -155,4 +155,4 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		c.JSON(200,guitars)
 	}
 }
-}
+
