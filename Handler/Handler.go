@@ -124,7 +124,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join woods w2 on (g."Side" = w2."Wood_Id")
 			join woods w3 on (g."Neck" = w3."Wood_Id")
 			join sizes s on (g."GuitarSize" = s."Size_Id")
-			join brands b on (g."Brand_Id" = b."Brand_Id") 
+			join brands b on (g."Brand_Id" = b."Brand_Id")
+			
 		`
 		cond:= `
 			where w1."Wood_Id" = ? AND --back
