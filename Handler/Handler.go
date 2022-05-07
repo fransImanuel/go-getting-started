@@ -128,7 +128,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			w2."Wood_Id" = ?
 			
 		`
-		i, err := strconv.Atoi(Input.Page)
+		// i, err := strconv.Atoi(Input.Page)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
 			fmt.Sprintf("Error when convert page: %q", err))
