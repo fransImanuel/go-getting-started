@@ -126,7 +126,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join brands b on (g."Brand_Id" = b."Brand_Id")
 			
 			ORDER BY g."Id"
-			offset 0 rows fetch next 10 rows only
+			offset ? rows fetch next 10 rows only
 			
 		`
 		// i, err := strconv.Atoi(Input.Page)
@@ -138,7 +138,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		// offset := i * 10
 		// offset := 0
 		// fmt.Println(q+cond)
-		rows, err := db.Query(q)
+		rows, err := db.Query(q,0)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
 			fmt.Sprintf("Error reading ticks: %q", err))
