@@ -125,9 +125,6 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join woods w3 on (g."Neck" = w3."Wood_Id")
 			join sizes s on (g."GuitarSize" = s."Size_Id")
 			join brands b on (g."Brand_Id" = b."Brand_Id")
-			
-		`
-		cond:= `
 			where w1."Wood_Id" = ? AND --back
 			w2."Wood_Id" = ? AND --side
 			w3."Wood_Id" = ? AND --neck
@@ -145,7 +142,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		}
 		offset := i * 10
 		fmt.Println(q+cond)
-		rows, err := db.Query(q+cond,Input.Back, Input.Side, Input.Neck, Input.Guitarsize, Input.Brand, Input.BottomPrice, Input.UpperPice, offset)
+		rows, err := db.Query(q,Input.Back, Input.Side, Input.Neck, Input.Guitarsize, Input.Brand, Input.BottomPrice, Input.UpperPice, offset)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
 			fmt.Sprintf("Error reading ticks: %q", err))
