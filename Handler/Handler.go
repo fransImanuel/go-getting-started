@@ -128,14 +128,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			
 		`
 		cond:= `
-			where w1."Wood_Id" = ? AND 
-			w2."Wood_Id" = ? AND
-			w3."Wood_Id" = ? AND 
-			s."Rank" = ? AND 
-			b."Rank" = ? AND 
-			(g."Price" >= ? AND g."Price" <= ?)
-			ORDER BY g."Id"
-			offset ? rows fetch next 10 rows only; 
+			where w1."Wood_Id" = ? 
 		`
 		i, err := strconv.Atoi(Input.Page)
 		if err != nil {
@@ -145,7 +138,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		}
 		offset := i * 10
 		fmt.Println(q+cond)
-		rows, err := db.Query(q+cond,Input.Back, Input.Side, Input.Neck, Input.Guitarsize, Input.Brand, Input.BottomPrice, Input.UpperPice, offset)
+		rows, err := db.Query(q+cond,Input.Back)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
 			fmt.Sprintf("Error reading ticks: %q", err))
