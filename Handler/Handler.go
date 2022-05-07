@@ -126,9 +126,10 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join brands b on (g."Brand_Id" = b."Brand_Id")
 			
 			ORDER BY g."Id"
-			limit ? --test
+			limit ?; --test
 			
 		`
+
 		// i, err := strconv.Atoi(Input.Page)
 		// if err != nil {
 		// 	c.String(http.StatusInternalServerError,
