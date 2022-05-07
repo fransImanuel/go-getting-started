@@ -141,7 +141,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 		offset := i * 10
-		fmt.Println(q+cond)
+		// fmt.Println(q+cond)
 		rows, err := db.Query(q,Input.Back, Input.Side, Input.Neck, Input.Guitarsize, Input.Brand, Input.BottomPrice, Input.UpperPice, offset)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
