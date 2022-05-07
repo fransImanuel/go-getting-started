@@ -124,7 +124,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join woods w3 on (g."Neck" = w3."Wood_Id")
 			join sizes s on (g."GuitarSize" = s."Size_Id")
 			join brands b on (g."Brand_Id" = b."Brand_Id") 
-			where w1."Wood_Id" = ?
+			where w1."Wood_Id" = ?;
 			
 		`
 		// i, err := strconv.Atoi(Input.Page)
