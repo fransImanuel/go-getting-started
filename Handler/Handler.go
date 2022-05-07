@@ -152,7 +152,11 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				}
 			guitars = append(guitars, guitar)
 		}
-		c.JSON(200,guitars)
+		c.JSON(200, Modal.Response{
+			Message: "Success",
+			Data: guitars,
+			Total_Data: len(guitars)
+		} )
 	}
 }
 
