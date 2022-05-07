@@ -136,7 +136,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			fmt.Sprintf("Error when convert page: %q", err))
 			return
 		}
-		offset := i * 10
+		// offset := i * 10
 		fmt.Println(q+cond)
 		rows, err := db.Query(q+cond,Input.Back)
 		if err != nil {
