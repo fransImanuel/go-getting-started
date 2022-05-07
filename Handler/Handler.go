@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -86,47 +87,84 @@ func TestCall(db *sql.DB) gin.HandlerFunc {
 
 func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		
+		var guitar Model.Guitars
+		var guitars []Model.Guitars
+		// var Response Model.Response
 
-		input := struct {
-			back	string 
-			side	string
-			neck	string
-			guitarsize string
-			brand string
-			bottomPrice string
-			upperPice string
+		Input := struct {
+			Back        string `json:"Back,omitempty"`
+			Side        string `json:"Side,omitempty"`
+			Neck        string `json:"Neck,omitempty"`
+			Guitarsize  string `json:"Guitarsize,omitempty"`
+			Brand       string `json:"Brand,omitempty"`
+			BottomPrice string `json:"bottomPrice,omitempty"`
+			UpperPice   string `json:"upperPrice,omitempty"`
+			Page        string `json:"Page,omitempt"`
 		}{
-			back: c.Query("Back"), 
-			side: c.Query("Side") ,
-			neck: c.Query("Neck") ,
-			guitarsize: c.Query("GuitarSize") ,
-			brand: c.Query("Brand") ,
-			bottomPrice: c.Query("bottomPrice") ,
-			upperPice: c.Query("upperPrice") ,
+			Back:        c.Query("Back"),
+			Side:        c.Query("Side"),
+			Neck:        c.Query("Neck"),
+			Guitarsize:  c.Query("GuitarSize"),
+			Brand:       c.Query("Brand"),
+			BottomPrice: c.Query("bottomPrice"),
+			UpperPice:   c.Query("upperPrice"),
+			Page:        c.Query("Page"),
 		}
 
-		c.JSON(200, input)
-	
-		// var guitar Model.Gitars
-		// var guitars []Modl.Guitars
+		// fmt.Println("TEST")
+		// fmt.Println(Input)
 
-		// rows, err := db.Query(`SELECT "Id","Brand_Id", "Name", "Price", "Back", "Side", "Neck", "GuitarSize", "Descriptio", "Image"  FROM guitars`)
-		// if err != nil {
-		// 	c.String(http.StatusInternalServerError,
-		// 		fmt.Spintf("Error reading ticks: %q", err))
-		// 	rturn
-		// }
+		// c.JSON(200, Input)
 
-		// defer rows.Close()
-		// or rows.Next() {
-		// if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand_ID, &guitar.Guitar_Name, &guitar.Price,
-		// 		&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
-		// 		c.String(http.StatusInternalServerError,
-		// 			fmt.Sprintf("Error scanning ticks: %q", err))
-		// 		return
-		// 	}
-		// 	guitars = append(guitars, guitar)
-		// }
-		// c.JSON(200, guitars)
+		q :=`
+			select g."Id", b."Rank" as "Brand_Id" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Rank" as "GuitarSize", g."Description", g."Image" 
+			from guitars g
+			join woods w1 on (g."Back" = w1."Wood_Id")
+			join woods w2 on (g."Side" = w2."Wood_Id")
+			join woods w3 on (g."Neck" = w3."Wood_Id")
+			join sizes s on (g."GuitarSize" = s."Size_Id")
+			join brands b on (g."Brand_Id" = b."Brand_Id") 
+		`
+		cond:= `
+			where w1."Wood_Id" = ? AND --back
+			w2."Wood_Id" = ? AND --side
+			w3."Wood_Id" = ? AND --neck
+			s."Rank" = ? AND --guitarsize
+			b."Rank" = ? AND --brand
+			(g."Price" >= ? AND g."Price" <= ?) --Price
+			ORDER BY g."Id"
+			offset ? rows fetch next 10 rows only; 
+		`
+		i, err := strconv.Atoi(Input.Page)
+		if err != nil {
+			c.String(http.StatusInternalServerError,
+			fmt.Sprintf("Error when convert page: %q", err))
+			return
+		}
+		offset := i * 10
+		rows, err := db.Query(q+cond,Input.Back, Input.Side, Input.Neck, Input.Guitarsize, Input.Brand, Input.BottomPrice, Input.UpperPice, offset)
+		if err != nil {
+			c.String(http.StatusInternalServerError,
+			fmt.Sprintf("Error reading ticks: %q", err))
+			return
+		}
+
+		defer rows.Close()
+		for rows.Next() {
+		if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand_ID, &guitar.Guitar_Name, &guitar.Price,
+				&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+				c.String(http.StatusInternalServerError,
+				fmt.Sprintf("Error scanning ticks: %q", err))
+				return
+		
+			guitars = append(guitars, guitar)
+		 }
+		c.JSON(200, Model.Response{
+			Message: "Success",
+			Data: guitars,
+			Total_Data:len(guitars),
+		})
 	}
+}
 }

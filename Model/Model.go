@@ -12,3 +12,12 @@ type Guitars struct {
 	Description *string  `json:"Description,omitempty"  db:"Description"`
 	Image       *string  `json:"Image,omitempty"  db:"Image"`
 }
+
+type Response struct {
+	Message        string      `json:"message,omitempty"`
+	Data           interface{} `json:"data,omitempty"`
+	Total_Data     interface{} `json:"total_data,omitempty"`
+	Error_Key      string      `json:"error_key,omitempty"`
+	Error_Message  string      `json:"error_message,omitempty"`
+	Secondary_Data interface{} `json:"secondary_data,omitempty"`
+}
