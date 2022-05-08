@@ -127,9 +127,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			b."Rank" = $5 AND --brand
 			(g."Price" >= $6 AND g."Price" <= $7) --Price
 			ORDER BY g."Id"
-			offset $8 rows fetch next 10 rows only; 
-			ORDER BY g."Id"
-			limit 10
+			offset $8 rows fetch next 10 rows only;
 			
 		`
 		page, err := strconv.Atoi(Input.Page)
