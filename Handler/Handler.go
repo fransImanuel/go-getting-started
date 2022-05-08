@@ -98,7 +98,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			Brand       string `json:"Brand,omitempty"`
 			BottomPrice string `json:"bottomPrice,omitempty"`
 			UpperPice   string `json:"upperPrice,omitempty"`
-			Page        int `json:"Page,omitempt"`
+			Page        string `json:"Page,omitempt"`
 		}{
 			Back:        c.Query("Back"),
 			Side:        c.Query("Side"),
@@ -131,8 +131,14 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			limit 10
 			
 		`
+		page, err := strconv.Atoi(Input.Page)
+		if err != nil {
+			c.String(http.StatusInternalServerError,
+			fmt.Sprintf("Error when convert page string into int: %q", err))
+			return
+		}
 
-		offset := pagination(Input.Page)
+		offset := pagination(page)
 		rows, err := db.Query(q,Input.Back ,Input.Side ,Input.Neck, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
