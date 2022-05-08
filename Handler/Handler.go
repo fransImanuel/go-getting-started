@@ -119,7 +119,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join woods w3 on (g."Neck" = w3."Wood_Id")
 			join sizes s on (g."GuitarSize" = s."Size_Id")
 			join brands b on (g."Brand_Id" = b."Brand_Id")
-			
+		`
+		cond:= `
 			where w1."Wood_Id" = $1 AND --back
 			w2."Wood_Id" = $2 AND --side
 			w3."Wood_Id" = $3 AND --neck
@@ -128,7 +129,6 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			(g."Price" >= $6 AND g."Price" <= $7) --Price
 			ORDER BY g."Id"
 			offset $8 rows fetch next 10 rows only;
-			
 		`
 		page, err := strconv.Atoi(Input.Page)
 		if err != nil {
@@ -138,11 +138,30 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		}
 
 		offset := pagination(page)
-		rows, err := db.Query(q,Input.Back ,Input.Side ,Input.Neck, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
+		rows, err := db.Query(q+cond,Input.Back ,Input.Side ,Input.Neck, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
 			fmt.Sprintf("Error reading ticks: %q", err))
 			return
+		}
+
+		if !rows.Next(){
+			cond = `
+			where w1."Wood_Id" = $1 OR --back
+			w2."Wood_Id" = $2 OR --side
+			w3."Wood_Id" = $3 OR --neck
+			s."Rank" = $4 OR --guitarsize
+			b."Rank" = $5 OR --brand
+			(g."Price" >= $6 OR g."Price" <= $7) --Price
+			ORDER BY g."Id"
+			offset $8 rows fetch next 10 rows only;
+		`
+			rows, err = db.Query(q+cond,Input.Back ,Input.Side ,Input.Neck, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
+			if err != nil {
+				c.String(http.StatusInternalServerError,
+				fmt.Sprintf("Error reading ticks: %q", err))
+				return
+			}
 		}
 
 		defer rows.Close()
