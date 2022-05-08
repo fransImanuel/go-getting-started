@@ -89,32 +89,26 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		
 		var guitar Model.Guitars
 		var guitars []Model.Guitars
-		// var Response Model.Response
 
-		// Input := struct {
-		// 	Back        string `json:"Back,omitempty"`
-		// 	Side        string `json:"Side,omitempty"`
-		// 	Neck        string `json:"Neck,omitempty"`
-		// 	Guitarsize  string `json:"Guitarsize,omitempty"`
-		// 	Brand       string `json:"Brand,omitempty"`
-		// 	BottomPrice string `json:"bottomPrice,omitempty"`
-		// 	UpperPice   string `json:"upperPrice,omitempty"`
-		// 	Page        string `json:"Page,omitempt"`
-		// }{
-		// 	Back:        c.Query("Back"),
-		// 	Side:        c.Query("Side"),
-		// 	Neck:        c.Query("Neck"),
-		// 	Guitarsize:  c.Query("GuitarSize"),
-		// 	Brand:       c.Query("Brand"),
-		// 	BottomPrice: c.Query("bottomPrice"),
-		// 	UpperPice:   c.Query("upperPrice"),
-		// 	Page:        c.Query("Page"),
-		// }
-
-		// fmt.Println("TEST")
-		// fmt.Println(Input)
-
-		// c.JSON(200, Input)
+		Input := struct {
+			Back        string `json:"Back,omitempty"`
+			Side        string `json:"Side,omitempty"`
+			Neck        string `json:"Neck,omitempty"`
+			Guitarsize  string `json:"Guitarsize,omitempty"`
+			Brand       string `json:"Brand,omitempty"`
+			BottomPrice string `json:"bottomPrice,omitempty"`
+			UpperPice   string `json:"upperPrice,omitempty"`
+			Page        int `json:"Page,omitempt"`
+		}{
+			Back:        c.Query("Back"),
+			Side:        c.Query("Side"),
+			Neck:        c.Query("Neck"),
+			Guitarsize:  c.Query("GuitarSize"),
+			Brand:       c.Query("Brand"),
+			BottomPrice: c.Query("bottomPrice"),
+			UpperPice:   c.Query("upperPrice"),
+			Page:        c.Query("Page"),
+		} 
 
 		q :=`
 			select g."Id", b."Rank" as "Brand_Id" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Rank" as "GuitarSize", g."Description", g."Image" 
@@ -125,21 +119,21 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join sizes s on (g."GuitarSize" = s."Size_Id")
 			join brands b on (g."Brand_Id" = b."Brand_Id")
 			
+			where w1."Wood_Id" = $1 AND --back
+			w2."Wood_Id" = $2 AND --side
+			w3."Wood_Id" = $3 AND --neck
+			s."Rank" = $4 AND --guitarsize
+			b."Rank" = $5 AND --brand
+			(g."Price" >= $6 AND g."Price" <= $7) --Price
 			ORDER BY g."Id"
-			limit $1
+			offset $8 rows fetch next 10 rows only; 
+			ORDER BY g."Id"
+			limit 10
 			
 		`
 
-		// i, err := strconv.Atoi(Input.Page)
-		// if err != nil {
-		// 	c.String(http.StatusInternalServerError,
-		// 	fmt.Sprintf("Error when convert page: %q", err))
-		// 	return
-		// }
-		// offset := i * 10
-		// offset := 0
-		// fmt.Println(q+cond)
-		rows, err := db.Query(q,10)
+		offset := pagination(Input.Page)
+		rows, err := db.Query(q,Input.Back ,Input.Side ,Input.Neck, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
 			fmt.Sprintf("Error reading ticks: %q", err))
@@ -165,3 +159,9 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+func pagination(page int)(offset int){
+	if page <= 1{
+		return 0
+	}
+	return 10 * page
+}
