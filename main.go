@@ -55,7 +55,7 @@ func main() {
 
 	router.GET("/test", Handler.TestCall(db))
 
-	router.GET("/get/guitarbyfilter", Middleware.CORSMiddleware(), Handler.GuitarByFilter(db))
+	router.GET("/get/guitarbyfilter", Middleware.CORSMiddleware, Handler.GuitarByFilter(db))
 	
 	router.GET("/get/allguitar", Middleware.CORSMiddleware(),Handler.AllGuitar(db))
 
