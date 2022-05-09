@@ -42,6 +42,7 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Logger())
+	router.Use(Middleware.CORSMiddleware())
 	router.LoadHTMLGlob("templates/*.tmpl.html")
 	router.Static("/static", "static")
 
@@ -55,9 +56,9 @@ func main() {
 
 	router.GET("/test", Handler.TestCall(db))
 
-	router.GET("/get/guitarbyfilter", Middleware.CORSMiddleware, Handler.GuitarByFilter(db))
+	router.GET("/get/guitarbyfilter", Handler.GuitarByFilter(db))
 	
-	router.GET("/get/allguitar", Middleware.CORSMiddleware(),Handler.AllGuitar(db))
+	router.GET("/get/allguitar",Handler.AllGuitar(db))
 
 	router.Run(":" + port)
 }
