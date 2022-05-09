@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	// os.Setenv("PORT", "3001")
+	os.Setenv("PORT", "3001")
 	port := os.Getenv("PORT")
 
 	if port == "" {
@@ -28,9 +28,9 @@ func main() {
 		repeat = 5
 	}
 
-	// db_url := "postgres://lxepsqkvqrpjwd:a12bfeec5b497d7bfe23f0bc6b2a62026e670c85453cad6ffb1c2194af2a5180@ec2-18-210-64-223.compute-1.amazonaws.com:5432/d6hcskiftuk3ai?sslmode=disable"
-	// db, err := sql.Open("postgres", db_url)
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db_url := "postgres://snrqhapoddkcil:d28075e479a43de8d3563ed9bb676e3278b4b4cb27be41af9eb315243f379654@ec2-54-165-184-219.compute-1.amazonaws.com:5432/d9q283dkhak1u0"
+	db, err := sql.Open("postgres", db_url)
+	// db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("Error opening database: %q", err)
 	}
