@@ -269,14 +269,100 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				guitars = append(guitars, guitar)
 			}
 		}
-		fmt.Println("results")
-		fmt.Println(results)
 
 		c.JSON(200, Model.Response{
 			Message: "Success",
 			Data: guitars,
 			Total_Data: count,
 		} )
+	}
+}
+
+func AllGuitar(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var guitar Model.Guitars
+		var guitars []Model.Guitars	
+		var results []Model.Result
+
+		q :=`
+			select g."Id", b."Rank" as "Brand_Id" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Rank" as "GuitarSize", g."Description", g."Image" 
+			from guitars g
+			join woods w1 on (g."Back" = w1."Wood_Id")
+			join woods w2 on (g."Side" = w2."Wood_Id")
+			join woods w3 on (g."Neck" = w3."Wood_Id")
+			join sizes s on (g."GuitarSize" = s."Size_Id")
+			join brands b on (g."Brand_Id" = b."Brand_Id")
+		`
+
+		rows, err := db.Query(q)
+		if err != nil {
+			c.JSON(502, Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} )
+			return
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,
+					&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+					c.JSON(502, Model.Response{
+						Message: "Error",
+						Error_Message: err,
+					} )
+					return
+				}
+			guitars = append(guitars, guitar)
+		}
+
+		results = SAW(guitars)
+		//reset guitars & guitar to nil and replace to sorted guitar rating
+		guitar = Model.Guitars{}
+		guitars = []Model.Guitars{}
+		
+		//------
+		// Third requery data based on sorted rating by SAW method
+		//------
+		for _, r := range results{
+			q =`
+				select g."Id", b."Rank" as "Brand_Id" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Rank" as "GuitarSize", g."Description", g."Image" 
+				from guitars g
+				join woods w1 on (g."Back" = w1."Wood_Id")
+				join woods w2 on (g."Side" = w2."Wood_Id")
+				join woods w3 on (g."Neck" = w3."Wood_Id")
+				join sizes s on (g."GuitarSize" = s."Size_Id")
+				join brands b on (g."Brand_Id" = b."Brand_Id")
+				where  g."Id" = $1
+			`
+			rows3, err := db.Query(q,r.Guitar_ID)
+			if err != nil {
+				c.JSON(502, Model.Response{
+					Message: "Error",
+					Error_Message: err,
+				} )
+				return
+			}
+
+			defer rows3.Close()
+			for rows3.Next() {
+				if err := rows3.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,
+					&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+					c.JSON(502, Model.Response{
+						Message: "Error",
+						Error_Message: err,
+					} )
+					return
+				}
+				guitars = append(guitars, guitar)
+			}
+		}
+
+		c.JSON(200, Model.Response{
+			Message: "Success",
+			Data: guitars,
+		} )
+
 	}
 }
 
@@ -304,16 +390,6 @@ func SAW(guitars []Model.Guitars)[]Model.Result{
 		if d.Brand <= *g.Brand || d.Brand == 0 { d.Brand = *g.Brand }
 	}
 
-	
-	// fmt.Println("---Divider---")
-	// fmt.Println( int(d.Price) )
-	// fmt.Println( d.Price )
-	// fmt.Println(d.Back)
-	// fmt.Println(d.Side)
-	// fmt.Println(d.Neck)
-	// fmt.Println(d.Size)
-	// fmt.Println(d.Brand)
-
 	// calculate = c
 	for _, c := range guitars{
 		n.Guitar_ID = *c.Guitar_ID
@@ -323,9 +399,6 @@ func SAW(guitars []Model.Guitars)[]Model.Result{
 		n.Neck = *c.Neck / d.Neck
 		n.Size = *c.GuitarSize / d.Size
 		n.Brand = *c.Brand / d.Brand		
-
-		// fmt.Println("--N Result--")
-		// fmt.Println(n)
 		ns = append(ns,n)
 	}
 
@@ -341,9 +414,5 @@ func SAW(guitars []Model.Guitars)[]Model.Result{
 		return results[i].Rating > results[j].Rating
 	})
 
-	// fmt.Println("Result")
-	// fmt.Println(results)
-
 	return results
-
 }
