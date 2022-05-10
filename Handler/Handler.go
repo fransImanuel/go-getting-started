@@ -74,7 +74,7 @@ func TestCall(db *sql.DB) gin.HandlerFunc {
 		defer rows.Close()
 		for rows.Next() {
 			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,
-				&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+				&guitar.Back_ID, &guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
 				c.String(http.StatusInternalServerError,
 					fmt.Sprintf("Error scanning ticks: %q", err))
 				return
@@ -95,9 +95,9 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		var results []Model.Result
 
 		Input = Model.RequestGuitar{
-			Back:        c.Query("Back"),
-			Side:        c.Query("Side"),
-			Neck:        c.Query("Neck"),
+			Back_ID:        c.Query("Back"),
+			Side_ID:        c.Query("Side"),
+			Neck_ID:        c.Query("Neck"),
 			Guitarsize:  c.Query("GuitarSize"),
 			Brand:       c.Query("Brand"),
 			BottomPrice: c.Query("bottomPrice"),
@@ -130,6 +130,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			offset $8 rows fetch next 10 rows only;`
 		page, err := strconv.Atoi(Input.Page)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(502, Model.Response{
 				Message: "Error",
 				Error_Message: err,
@@ -139,8 +140,9 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 
 		offset := pagination(page)
 		rows, err := db.Query(q+cond+queryLimit,
-			Input.Back ,Input.Side ,Input.Neck, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
+			Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(502, Model.Response{
 				Message: "Error",
 				Error_Message: err,
@@ -151,7 +153,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 
 		for rows.Next() {
 			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,
-					&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+					&guitar.Back_ID, &guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+					fmt.Println(err)
 					c.JSON(502, Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -173,8 +176,9 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				(g."Price" >= $6 OR g."Price" <= $7) --Price
 			`
 				rows, err = db.Query(q+cond+queryLimit,
-					Input.Back ,Input.Side ,Input.Neck, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
+					Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
 				if err != nil {
+					fmt.Println(err)
 					c.JSON(502, Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -185,7 +189,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 
 			for rows.Next() {
 				if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,
-						&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+						&guitar.Back_ID, &guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+						fmt.Println(err)
 						c.JSON(502, Model.Response{
 							Message: "Error",
 							Error_Message: err,
@@ -209,16 +214,20 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join sizes s on (g."GuitarSize" = s."Size_Id")
 			join brands b on (g."Brand_Id" = b."Brand_Id")
 		`
-		rows2, err := db.Query(q+cond,Input.Back ,Input.Side ,Input.Neck, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice)
+		rows2, err := db.Query(q+cond,Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice)
 		if err != nil {
-			c.String(http.StatusInternalServerError,
-			fmt.Sprintf("Error rows2: %q", err))
+			fmt.Println(err)
+			c.JSON(502, Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} )
 			return
 		}
 
 		defer rows2.Close()
 		for rows2.Next() {
 			if err := rows2.Scan(&count); err != nil {
+				fmt.Println(err)
 				c.JSON(502, Model.Response{
 					Message: "Error",
 					Error_Message: err,
@@ -249,6 +258,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			`
 			rows3, err := db.Query(q,r.Guitar_ID)
 			if err != nil {
+				fmt.Println(err)
 				c.JSON(502, Model.Response{
 					Message: "Error",
 					Error_Message: err,
@@ -259,7 +269,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			defer rows3.Close()
 			for rows3.Next() {
 				if err := rows3.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,
-					&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+					&guitar.Back_Name, &guitar.Side_Name, &guitar.Neck_Name, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+					fmt.Println(err)
 					c.JSON(502, Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -306,7 +317,7 @@ func AllGuitar(db *sql.DB) gin.HandlerFunc {
 
 		for rows.Next() {
 			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,
-					&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+					&guitar.Back_ID, &guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
 					c.JSON(502, Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -347,7 +358,7 @@ func AllGuitar(db *sql.DB) gin.HandlerFunc {
 			defer rows3.Close()
 			for rows3.Next() {
 				if err := rows3.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,
-					&guitar.Back, &guitar.Side, &guitar.Neck, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
+					&guitar.Back_ID, &guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image); err != nil {
 					c.JSON(502, Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -383,9 +394,9 @@ func SAW(guitars []Model.Guitars)[]Model.Result{
 	for _, g := range guitars{
 
 		if d.Price >= *g.Price || d.Price == 0  { d.Price = *g.Price }
-		if d.Back <= *g.Back || d.Back == 0 { d.Back = *g.Back }
-		if d.Side <= *g.Side || d.Side == 0 { d.Side = *g.Side }
-		if d.Neck <= *g.Neck || d.Neck == 0 { d.Neck = *g.Neck }
+		if d.Back <= *g.Back_ID || d.Back == 0 { d.Back = *g.Back_ID }
+		if d.Side <= *g.Side_ID || d.Side == 0 { d.Side = *g.Side_ID }
+		if d.Neck <= *g.Neck_ID || d.Neck == 0 { d.Neck = *g.Neck_ID }
 		if d.Size <= *g.GuitarSize || d.Size == 0 { d.Size = *g.GuitarSize }
 		if d.Brand <= *g.Brand || d.Brand == 0 { d.Brand = *g.Brand }
 	}
@@ -394,9 +405,9 @@ func SAW(guitars []Model.Guitars)[]Model.Result{
 	for _, c := range guitars{
 		n.Guitar_ID = *c.Guitar_ID
 		n.Price =  d.Price / *c.Price
-		n.Back = *c.Back / d.Back
-		n.Side = *c.Side / d.Side
-		n.Neck = *c.Neck / d.Neck
+		n.Back = *c.Back_ID / d.Back
+		n.Side = *c.Side_ID / d.Side
+		n.Neck = *c.Neck_ID / d.Neck
 		n.Size = *c.GuitarSize / d.Size
 		n.Brand = *c.Brand / d.Brand		
 		ns = append(ns,n)

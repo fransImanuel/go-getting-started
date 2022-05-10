@@ -5,9 +5,12 @@ type Guitars struct {
 	Brand       *float64 `json:"Brand_ID,omitempty"  db:"Brand_Id"`
 	Guitar_Name *string  `json:"Guitar_Name,omitempty"  db:"Name"`
 	Price       *float64 `json:"Price,omitempty"  db:"Price"`
-	Back        *float64 `json:"Back,omitempty"  db:"Back"`
-	Side        *float64 `json:"Side,omitempty"  db:"Side"`
-	Neck        *float64 `json:"Neck,omitempty"  db:"Neck"`
+	Back_ID     *float64 `json:"Back,omitempty"  db:"Back"`
+	Side_ID     *float64 `json:"Side,omitempty"  db:"Side"`
+	Neck_ID     *float64 `json:"Neck,omitempty"  db:"Neck"`
+	Back_Name   *string  `json:"Back_Name,omitempty"  db:"Back"`
+	Side_Name   *string  `json:"Side_Name,omitempty"  db:"Side"`
+	Neck_Name   *string  `json:"Neck_Name,omitempty"  db:"Neck"`
 	GuitarSize  *float64 `json:"GuitarSize,omitempty"  db:"GuitarSize"`
 	Description *string  `json:"Description,omitempty"  db:"Description"`
 	Image       *string  `json:"Image,omitempty"  db:"Image"`
@@ -18,14 +21,14 @@ type Response struct {
 	Data           interface{} `json:"data,omitempty"`
 	Total_Data     interface{} `json:"total_data,omitempty"`
 	Error_Key      string      `json:"error_key,omitempty"`
-	Error_Message  error      `json:"error_message,omitempty"`
+	Error_Message  error       `json:"error_message,omitempty"`
 	Secondary_Data interface{} `json:"secondary_data,omitempty"`
 }
 
 type RequestGuitar struct {
-	Back        string `json:"Back,omitempty"`
-	Side        string `json:"Side,omitempty"`
-	Neck        string `json:"Neck,omitempty"`
+	Back_ID     string `json:"Back,omitempty"`
+	Side_ID     string `json:"Side,omitempty"`
+	Neck_ID     string `json:"Neck,omitempty"`
 	Guitarsize  string `json:"Guitarsize,omitempty"`
 	Brand       string `json:"Brand,omitempty"`
 	BottomPrice string `json:"bottomPrice,omitempty"`
