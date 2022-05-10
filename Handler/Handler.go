@@ -100,7 +100,6 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			Neck_ID:        c.Query("Neck"),
 			Guitarsize:  c.Query("GuitarSize"),
 			Brand:       c.Query("Brand"),
-			BottomPrice: c.Query("bottomPrice"),
 			UpperPice:   c.Query("upperPrice"),
 			Page:        c.Query("Page"),
 		} 
@@ -123,11 +122,11 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			w3."Wood_Id" = $3 AND --neck
 			s."Size_Id" = $4 AND --guitarsize
 			b."Brand_Id" = $5 AND --brand
-			(g."Price" >= $6 AND g."Price" <= $7) --Price
+			g."Price" <= $6 --Price
 		`
 		queryLimit := `
 			ORDER BY g."Id"
-			offset $8 rows fetch next 10 rows only;`
+			offset $7 rows fetch next 10 rows only;`
 		page, err := strconv.Atoi(Input.Page)
 		if err != nil {
 			fmt.Println(err)
@@ -140,7 +139,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 
 		offset := pagination(page)
 		rows, err := db.Query(q+cond+queryLimit,
-			Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
+			Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice,offset)
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(502, Model.Response{
@@ -173,10 +172,10 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				w3."Wood_Id" = $3 OR --neck
 				s."Size_Id" = $4 OR --guitarsize
 				b."Brand_Id" = $5 OR --brand
-				(g."Price" >= $6 OR g."Price" <= $7) --Price
+				g."Price" <= $6 --Price
 			`
 				rows, err = db.Query(q+cond+queryLimit,
-					Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice,offset)
+					Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice,offset)
 				if err != nil {
 					fmt.Println(err)
 					c.JSON(502, Model.Response{
@@ -214,7 +213,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join sizes s on (g."GuitarSize" = s."Size_Id")
 			join brands b on (g."Brand_Id" = b."Brand_Id")
 		`
-		rows2, err := db.Query(q+cond,Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.BottomPrice,Input.UpperPice)
+		rows2, err := db.Query(q+cond,Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice)
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(502, Model.Response{
