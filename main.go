@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/heroku/go-getting-started/Handler"
-	"github.com/heroku/go-getting-started/Middleware"
 	_ "github.com/heroku/x/hmetrics/onload"
 	_ "github.com/lib/pq"
 )
@@ -42,7 +41,7 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Logger())
-	router.Use(Middleware.CORSMiddleware())
+	// router.Use(Middleware.CORSMiddleware())
 	router.LoadHTMLGlob("templates/*.tmpl.html")
 	router.Static("/static", "static")
 
