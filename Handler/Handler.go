@@ -238,7 +238,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		//------
 		for _, r := range results{
 			q =`
-				select g."Id", b."Rank" as "Brand_Id" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Rank" as "GuitarSize", g."Description", g."Image" 
+				select g."Id", b."Rank" as "Brand_Id" , g."Name", g."Price", w1."Name" as "Back", w2."Name" as "Side", w3."Name" as "Neck", s."Size" as "GuitarSize", g."Description", g."Image" 
 				from guitars g
 				join woods w1 on (g."Back" = w1."Wood_Id")
 				join woods w2 on (g."Side" = w2."Wood_Id")
