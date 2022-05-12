@@ -164,40 +164,47 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		}
 
 		//IF THE RESULT IS NULL/NOT FOUND
-		if len(guitars) == 0 {
-			if !rows.Next(){
-				cond = `
-				where w1."Wood_Id" = $1 OR --back
-				w2."Wood_Id" = $2 OR --side
-				w3."Wood_Id" = $3 OR --neck
-				s."Size_Id" = $4 OR --guitarsize
-				b."Brand_Id" = $5 OR --brand
-				g."Price" <= $6 --Price
-			`
-				rows, err = db.Query(q+cond+queryLimit,
-					Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice,offset)
-				if err != nil {
-					fmt.Println(err)
-					c.JSON(502, Model.Response{
-						Message: "Error",
-						Error_Message: err,
-					} )
-					return
-				}
-			}
+		// if len(guitars) == 0 {
+		// 	if !rows.Next(){
+		// 		cond = `
+		// 		where w1."Wood_Id" = $1 OR --back
+		// 		w2."Wood_Id" = $2 OR --side
+		// 		w3."Wood_Id" = $3 OR --neck
+		// 		s."Size_Id" = $4 OR --guitarsize
+		// 		b."Brand_Id" = $5 OR --brand
+		// 		g."Price" <= $6 --Price
+		// 	`
+		// 		rows, err = db.Query(q+cond+queryLimit,
+		// 			Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice,offset)
+		// 		if err != nil {
+		// 			fmt.Println(err)
+		// 			c.JSON(502, Model.Response{
+		// 				Message: "Error",
+		// 				Error_Message: err,
+		// 			} )
+		// 			return
+		// 		}
+		// 	}
 
-			for rows.Next() {
-				if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_ID, 
-					&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
-						fmt.Println(err)
-						c.JSON(502, Model.Response{
-							Message: "Error",
-							Error_Message: err,
-						} )
-						return
-					}
-				guitars = append(guitars, guitar)
-			}
+		// 	for rows.Next() {
+		// 		if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_ID, 
+		// 			&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
+		// 				fmt.Println(err)
+		// 				c.JSON(502, Model.Response{
+		// 					Message: "Error",
+		// 					Error_Message: err,
+		// 				} )
+		// 				return
+		// 			}
+		// 		guitars = append(guitars, guitar)
+		// 	}
+		// }
+		if len(guitars) == 0 {
+			c.JSON(404, Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} )
+			return
 		}
 		
 		//------
