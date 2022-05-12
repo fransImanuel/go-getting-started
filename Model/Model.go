@@ -14,6 +14,7 @@ type Guitars struct {
 	GuitarSize  *float64 `json:"GuitarSize,omitempty"  db:"GuitarSize"`
 	Description *string  `json:"Description,omitempty"  db:"Description"`
 	Image       *string  `json:"Image,omitempty"  db:"Image"`
+	WhereToBuy       *string  `json:"WhereToBuy,omitempty"  db:"WhereToBuy"`
 }
 
 type Response struct {
@@ -49,4 +50,9 @@ type Divider struct {
 type Result struct {
 	Guitar_ID int
 	Rating    float64
+}
+
+type Criteria struct {
+	Criteria_Name string
+	Value float64
 }
