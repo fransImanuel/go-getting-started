@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/heroku/go-getting-started/Handler"
@@ -24,12 +23,7 @@ func main() {
 		log.Fatal("$PORT must be set")
 	}
 
-	tStr := os.Getenv("REPEAT")
-	repeat, err := strconv.Atoi(tStr)
-	if err != nil {
-		log.Printf("Error converting $REPEAT to an int: %q - Using default\n", err)
-		repeat = 5
-	}
+	
 
 	//comment this for local testing
 	// db_url := "postgres://snrqhapoddkcil:d28075e479a43de8d3563ed9bb676e3278b4b4cb27be41af9eb315243f379654@ec2-54-165-184-219.compute-1.amazonaws.com:5432/d9q283dkhak1u0"
@@ -49,10 +43,6 @@ func main() {
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl.html", nil)
 	})
-
-	router.GET("/repeat", Handler.RepeatHandler(repeat))
-
-	router.GET("/db", Handler.DbFunc(db))
 
 	router.GET("/test", Handler.TestCall(db))
 

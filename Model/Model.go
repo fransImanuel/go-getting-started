@@ -14,7 +14,7 @@ type Guitars struct {
 	GuitarSize  *float64 `json:"GuitarSize,omitempty"  db:"GuitarSize"`
 	Description *string  `json:"Description,omitempty"  db:"Description"`
 	Image       *string  `json:"Image,omitempty"  db:"Image"`
-	WhereToBuy       *string  `json:"WhereToBuy,omitempty"  db:"WhereToBuy"`
+	WhereToBuy  *string  `json:"WhereToBuy,omitempty"  db:"WhereToBuy"`
 }
 
 type Response struct {
@@ -24,6 +24,7 @@ type Response struct {
 	Error_Key      string      `json:"error_key,omitempty"`
 	Error_Message  error       `json:"error_message,omitempty"`
 	Secondary_Data interface{} `json:"secondary_data,omitempty"`
+	Criteria_Found bool `json:"criteria_found,omitempty"`
 }
 
 type RequestGuitar struct {
