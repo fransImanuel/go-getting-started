@@ -3,6 +3,7 @@ package Model
 type Guitars struct {
 	Guitar_ID   *int     `json:"Guitar_ID,omitempty"  db:"Id"`
 	Brand       *float64 `json:"Brand_ID,omitempty"  db:"Brand_Id"`
+	Brand_Name  *string `json:"Brand_Name,omitempty"  db:"Brand_Name"`
 	Guitar_Name *string  `json:"Guitar_Name,omitempty"  db:"Name"`
 	Price       *float64 `json:"Price,omitempty"  db:"Price"`
 	Back_ID     *float64 `json:"Back,omitempty"  db:"Back"`
@@ -24,7 +25,7 @@ type Response struct {
 	Error_Key      string      `json:"error_key,omitempty"`
 	Error_Message  error       `json:"error_message,omitempty"`
 	Secondary_Data interface{} `json:"secondary_data,omitempty"`
-	Criteria_Found bool `json:"criteria_found,omitempty"`
+	Criteria_Found bool        `json:"criteria_found,omitempty"`
 }
 
 type RequestGuitar struct {
@@ -55,5 +56,5 @@ type Result struct {
 
 type Criteria struct {
 	Criteria_Name string
-	Value float64
+	Value         float64
 }

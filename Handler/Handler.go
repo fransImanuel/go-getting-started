@@ -255,7 +255,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		//------
 		for _, r := range results{
 			q =`
-				select g."Id", b."Rank" as "Brand_Id" , g."Name", g."Price", w1."Name" as "Back", w2."Name" as "Side", w3."Name" as "Neck", s."Size" as "GuitarSize", g."Description", g."Image", g."WhereToBuy" 
+				select g."Id", b."Rank" as "Brand_Id", b."Name" as "Brand_Name" , g."Name", g."Price", w1."Name" as "Back", w2."Name" as "Side", w3."Name" as "Neck", s."Size" as "GuitarSize", g."Description", g."Image", g."WhereToBuy" 
 				from guitars g
 				join woods w1 on (g."Back" = w1."Wood_Id")
 				join woods w2 on (g."Side" = w2."Wood_Id")
@@ -277,7 +277,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 
 			defer rows3.Close()
 			for rows3.Next() {
-				if err := rows3.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_Name, 
+				if err := rows3.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Brand_Name, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_Name, 
 					&guitar.Side_Name, &guitar.Neck_Name, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
 					fmt.Println(err)
 					res = Model.Response{
