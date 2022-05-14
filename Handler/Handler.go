@@ -109,17 +109,17 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		if len(guitars) == 0 {
 			if !rows.Next(){
 				cond = `
-				where (w1."Wood_Id" = $1 OR --back
-				w2."Wood_Id" = $2 OR --side
-				w3."Wood_Id" = $3) AND --neck
-				s."Size_Id" = $4 And --guitarsize
+				where (w1."Wood_Id" = $1 AND --back
+				w2."Wood_Id" = $2 AND --side
+				w3."Wood_Id" = $3) OR --neck
+				b."Brand_Id" = $4 OR --brand
 				g."Price" <= $5 --Price
 			`
 			queryLimit = `
 				ORDER BY g."Id"
 				offset $6 rows fetch next 10 rows only;`
 				rows, err = db.Query(q+cond+queryLimit,
-					Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.UpperPice,offset)
+					Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Brand ,Input.UpperPice,offset)
 				if err != nil {
 					// fmt.Println(err)
 					c.JSON(502, Model.Response{
