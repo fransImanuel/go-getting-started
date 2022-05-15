@@ -180,6 +180,80 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 					return
 				}
 			}
+
+			//Im grieving at this point 
+			if len(guitars) == 0 {
+				if !rows.Next(){
+					cond = `
+					where b."Brand_Id" = $1
+				`
+				queryLimit = `
+					ORDER BY g."Id"
+					offset $2 rows fetch next 10 rows only;`
+					rows, err = db.Query(q+cond+queryLimit, Input.Brand, offset)
+					if err != nil {
+						// fmt.Println(err)
+						c.JSON(502, Model.Response{
+							Message: "Error",
+							Error_Message: err,
+						} )
+						return
+					}
+				}
+
+				for rows.Next() {
+					if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_ID, 
+						&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
+							// fmt.Println(err)
+							c.JSON(502, Model.Response{
+								Message: "Error",
+								Error_Message: err,
+							} )
+							return
+						}
+					guitars = append(guitars, guitar)
+				}
+
+				//------
+				// Second query to count the data for pagination purposes
+				//------
+
+				q =`
+					select count(g."Id")
+					from guitars g
+					join woods w1 on (g."Back" = w1."Wood_Id")
+					join woods w2 on (g."Side" = w2."Wood_Id")
+					join woods w3 on (g."Neck" = w3."Wood_Id")
+					join sizes s on (g."GuitarSize" = s."Size_Id")
+					join brands b on (g."Brand_Id" = b."Brand_Id")
+				`
+				
+				rows2, err := db.Query(q+cond+queryLimit, Input.Brand, offset)
+				if err != nil {
+					// fmt.Println(err)
+					res = Model.Response{
+						Message: "Error",
+						Error_Message: err,
+					} 
+					c.JSON(502, res)
+					return
+				}
+
+				defer rows2.Close()
+				for rows2.Next() {
+					if err := rows2.Scan(&count); err != nil {
+						// fmt.Println(err)
+						res = Model.Response{
+							Message: "Error",
+							Error_Message: err,
+						} 
+						c.JSON(502, res)
+						return
+					}
+				}
+			}
+
+
 		}else{
 			q =`
 				select count(g."Id")
