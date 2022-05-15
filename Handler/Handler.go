@@ -2,6 +2,7 @@ package Handler
 
 import (
 	"database/sql"
+	"fmt"
 	"sort"
 	"strconv"
 
@@ -68,7 +69,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			offset $7 rows fetch next 10 rows only;`
 		page, err := strconv.Atoi(Input.Page)
 		if err != nil {
-			// fmt.Println(err)
+			fmt.Println(err)
 			res = Model.Response{
 				Message: "Error",
 				Error_Message: err,
@@ -81,7 +82,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		rows, err := db.Query(q+cond+queryLimit,
 			Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice,offset)
 		if err != nil {
-			// fmt.Println(err)
+			fmt.Println("err here 85")
+			fmt.Println(err)
 			res = Model.Response{
 				Message: "Error",
 				Error_Message: err,
@@ -94,7 +96,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		for rows.Next() {
 			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price, &guitar.Back_ID, 
 				&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
-					// fmt.Println(err)
+					fmt.Println("err here 99")
+					fmt.Println(err)
 					res = Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -105,35 +108,35 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			guitars = append(guitars, guitar)
 		}
 
-		//IF THE RESULT IS NULL/NOT FOUND
+		//IF THE RESULT IS NULL/NOT FOUND 1
 		if len(guitars) == 0 {
-			if !rows.Next(){
-				cond = `
-				where (w1."Wood_Id" = $1 AND --back
-				w2."Wood_Id" = $2 AND --side
-				w3."Wood_Id" = $3) OR --neck
-				b."Brand_Id" = $4 OR --brand
+			cond = `
+				where (w1."Wood_Id" = $1 OR --back
+				w2."Wood_Id" = $2 OR --side
+				w3."Wood_Id" = $3) AND --neck
+				b."Brand_Id" = $4 AND --brand
 				g."Price" <= $5 --Price
 			`
 			queryLimit = `
 				ORDER BY g."Id"
 				offset $6 rows fetch next 10 rows only;`
-				rows, err = db.Query(q+cond+queryLimit,
-					Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Brand ,Input.UpperPice,offset)
-				if err != nil {
-					// fmt.Println(err)
-					c.JSON(502, Model.Response{
-						Message: "Error",
-						Error_Message: err,
-					} )
-					return
-				}
+			rows, err = db.Query(q+cond+queryLimit,
+				Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Brand ,Input.UpperPice,offset)
+			if err != nil {
+				fmt.Println("err here 126")
+				fmt.Println(err)
+				c.JSON(502, Model.Response{
+					Message: "Error",
+					Error_Message: err,
+				} )
+				return
 			}
 
 			for rows.Next() {
 				if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_ID, 
 					&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
-						// fmt.Println(err)
+						fmt.Println("err here 138")
+						fmt.Println(err)
 						c.JSON(502, Model.Response{
 							Message: "Error",
 							Error_Message: err,
@@ -159,7 +162,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			
 			rows2, err := db.Query(q+cond,Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.UpperPice)
 			if err != nil {
-				// fmt.Println(err)
+				fmt.Println("err here 165")
+				fmt.Println(err)
 				res = Model.Response{
 					Message: "Error",
 					Error_Message: err,
@@ -171,7 +175,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			defer rows2.Close()
 			for rows2.Next() {
 				if err := rows2.Scan(&count); err != nil {
-					// fmt.Println(err)
+					fmt.Println("err here 178")
+					fmt.Println(err)
 					res = Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -181,30 +186,40 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				}
 			}
 
-			//Im grieving at this point 
+			//Im grieving at this point  2
 			if len(guitars) == 0 {
-				if !rows.Next(){
-					cond = `
+				q =`
+					select g."Id", b."Rank" as "Brand_Id" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Rank" as "GuitarSize", g."Description", g."Image" , g."WhereToBuy" 
+					from guitars g
+					join woods w1 on (g."Back" = w1."Wood_Id")
+					join woods w2 on (g."Side" = w2."Wood_Id")
+					join woods w3 on (g."Neck" = w3."Wood_Id")
+					join sizes s on (g."GuitarSize" = s."Size_Id")
+					join brands b on (g."Brand_Id" = b."Brand_Id")
+				`
+				cond = `
 					where b."Brand_Id" = $1
 				`
 				queryLimit = `
 					ORDER BY g."Id"
 					offset $2 rows fetch next 10 rows only;`
-					rows, err = db.Query(q+cond+queryLimit, Input.Brand, offset)
-					if err != nil {
-						// fmt.Println(err)
-						c.JSON(502, Model.Response{
-							Message: "Error",
-							Error_Message: err,
-						} )
-						return
-					}
+				rows, err = db.Query(q+cond+queryLimit, Input.Brand, offset)
+				if err != nil {
+					fmt.Println("err Here 208")
+					fmt.Println(q+cond+queryLimit)
+					c.JSON(502, Model.Response{
+						Message: "Error",
+						Error_Message: err,
+					} )
+					return
 				}
+				
 
 				for rows.Next() {
 					if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_ID, 
 						&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
-							// fmt.Println(err)
+							fmt.Println("err here 221")
+							fmt.Println(err)
 							c.JSON(502, Model.Response{
 								Message: "Error",
 								Error_Message: err,
@@ -227,10 +242,14 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 					join sizes s on (g."GuitarSize" = s."Size_Id")
 					join brands b on (g."Brand_Id" = b."Brand_Id")
 				`
+				queryLimit = `
+					ORDER BY count(g."Id")`
 				
-				rows2, err := db.Query(q+cond+queryLimit, Input.Brand, offset)
+				rows2, err := db.Query(q+cond+queryLimit, Input.Brand)
 				if err != nil {
-					// fmt.Println(err)
+					fmt.Println("err here 250")
+					fmt.Println(q+cond+queryLimit)
+					fmt.Println(err)
 					res = Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -242,7 +261,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				defer rows2.Close()
 				for rows2.Next() {
 					if err := rows2.Scan(&count); err != nil {
-						// fmt.Println(err)
+						fmt.Println("err here 261")
+						fmt.Println(err)
 						res = Model.Response{
 							Message: "Error",
 							Error_Message: err,
@@ -266,7 +286,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			`
 			rows2, err := db.Query(q+cond,Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice)
 			if err != nil {
-				// fmt.Println(err)
+				fmt.Println("err here 286")
+				fmt.Println(err)
 				res = Model.Response{
 					Message: "Error",
 					Error_Message: err,
@@ -278,7 +299,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			defer rows2.Close()
 			for rows2.Next() {
 				if err := rows2.Scan(&count); err != nil {
-					// fmt.Println(err)
+					fmt.Println("err here 299")
+					fmt.Println(err)
 					res = Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -293,7 +315,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 
 		results,err = SAW(guitars,db)
 		if err != nil {
-			// fmt.Println(err)
+			fmt.Println("err here 315")
+			fmt.Println(err)
 			res = Model.Response{
 				Message: "Error",
 				Error_Message: err,
@@ -321,7 +344,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			`
 			rows3, err := db.Query(q,r.Guitar_ID)
 			if err != nil {
-				// fmt.Println(err)
+				fmt.Println("err here 344")
+				fmt.Println(err)
 				res = Model.Response{
 					Message: "Error",
 					Error_Message: err,
@@ -334,7 +358,8 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			for rows3.Next() {
 				if err := rows3.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Brand_Name, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_Name, 
 					&guitar.Side_Name, &guitar.Neck_Name, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
-					// fmt.Println(err)
+					fmt.Println("err here 358")
+					fmt.Println(err)
 					res = Model.Response{
 						Message: "Error",
 						Error_Message: err,
