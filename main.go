@@ -15,7 +15,7 @@ import (
 
 func main() {
 	//comment this for local testing
-	// os.Setenv("PORT", "3002")
+	os.Setenv("PORT", "5000")
 	//comment this for local testing
 	port := os.Getenv("PORT")
 
@@ -26,10 +26,10 @@ func main() {
 	
 
 	//comment this for local testing
-	// db_url := "postgres://snrqhapoddkcil:d28075e479a43de8d3563ed9bb676e3278b4b4cb27be41af9eb315243f379654@ec2-54-165-184-219.compute-1.amazonaws.com:5432/d9q283dkhak1u0"
-	// db, err := sql.Open("postgres", db_url)
+	db_url := "postgres://snrqhapoddkcil:d28075e479a43de8d3563ed9bb676e3278b4b4cb27be41af9eb315243f379654@ec2-54-165-184-219.compute-1.amazonaws.com:5432/d9q283dkhak1u0"
+	db, err := sql.Open("postgres", db_url)
 	//comment this for local testing
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	// db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("Error opening database: %q", err)
 	}
@@ -49,6 +49,8 @@ func main() {
 	router.GET("/get/guitarbyfilter", Handler.GuitarByFilter(db))
 	
 	router.GET("/get/allguitar",Handler.AllGuitar(db))
+
+	router.GET("/get/gitarforadmin",Handler.AllGuitarForAdmin(db))
 	
 	router.POST("/addguitar",Handler.AddGuitar(db))
 	

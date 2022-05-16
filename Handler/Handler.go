@@ -702,7 +702,57 @@ func Login(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+func AllGuitarForAdmin(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var guitar Model.Guitars
+		var guitars []Model.Guitars	
+		var res Model.Response
 
+		q :=`
+			select g."Id", b."Rank" as "Brand_Id", b."Name" as "Brand_Name" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Size" as "GuitarSize"
+				from guitars g
+			join woods w1 on (g."Back" = w1."Wood_Id")
+			join woods w2 on (g."Side" = w2."Wood_Id")
+			join woods w3 on (g."Neck" = w3."Wood_Id")
+			join sizes s on (g."GuitarSize" = s."Size_Id")
+			join brands b on (g."Brand_Id" = b."Brand_Id")
+			order by g."Id"
+		`
+
+		rows, err := db.Query(q)
+		if err != nil {
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(502, res)
+			return
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Brand_Name, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_ID, 
+					&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize); err != nil {
+					// fmt.Println(err)
+					res = Model.Response{
+						Message: "Error",
+						Error_Message: err,
+					} 
+					c.JSON(502, res)
+					return
+				}
+			guitars = append(guitars, guitar)
+		}
+
+		res = Model.Response{
+			Message: "Success",
+			Data: guitars,
+			Total_Data: len(guitars),
+		}
+		c.JSON(200, res )
+
+	}
+}
 
 func UpdateGuitar(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
