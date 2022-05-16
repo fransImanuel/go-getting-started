@@ -7,10 +7,12 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/heroku/go-getting-started/Model"
 )
 
 
+var validate *validator.Validate
 
 func TestCall(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -481,7 +483,6 @@ func AllGuitar(db *sql.DB) gin.HandlerFunc {
 			Data: guitars,
 			Total_Data: len(guitars),
 		}
-
 		c.JSON(200, res )
 
 	}
@@ -572,4 +573,226 @@ func SAW(guitars []Model.Guitars,db *sql.DB)([]Model.Result,error){
 	// fmt.Println(results)
 
 	return results,nil
+}
+
+func AddGuitar(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var res Model.Response
+		var Input Model.AddGuitar	
+		
+		err := c.BindJSON(&Input)
+		if err != nil {
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(400, res)
+			return
+		}
+		// fmt.Println(Input)
+		
+		validate = validator.New()
+		err = validate.Struct(Input)
+		if err != nil {
+			fmt.Println(err)
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(400, res)
+			return
+		}
+
+		q := `
+			INSERT INTO "guitars" ("Brand_Id", "Name", "Price", "Back", "Side", "Neck", "GuitarSize", "Description", "Image", "WhereToBuy") 
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+		`
+		_, err = db.Exec(q,Input.Brand_ID, Input.Guitar_Name, Input.Price, Input.Back_ID, Input.Side_ID, Input.Neck_ID,
+			Input.Size_ID, Input.Description, Input.Image, Input.WhereToBuy)
+		if err != nil {
+			fmt.Println(err)
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(502, res)
+			return
+		}
+
+		res = Model.Response{
+			Message: "Success",
+		}
+		c.JSON(200, res )
+
+	}
+}
+
+func Login(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var res Model.Response
+		var countUser int
+		var Input Model.Login	
+		
+		err := c.BindJSON(&Input)
+		if err != nil {
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(400, res)
+			return
+		}
+		// fmt.Println(Input)
+		
+		validate = validator.New()
+		err = validate.Struct(Input)
+		if err != nil {
+			fmt.Println(err)
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(400, res)
+			return
+		}
+
+		q := `
+			select count(a."User_Id")
+			from admininfo a
+			where a."username" = $1 AND a."password" = $2;
+		`
+		rows, err := db.Query(q,Input.Username, Input.Password)
+		if err != nil {
+			fmt.Println(err)
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(502, res)
+			return
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			if err := rows.Scan(&countUser); err != nil {
+				fmt.Println("err here 99")
+				fmt.Println(err)
+				res = Model.Response{
+					Message: "Error",
+					Error_Message: err,
+				} 
+				c.JSON(502, res)
+				return
+			}
+		}
+
+		if countUser < 1 {
+			res = Model.Response{
+				Message: "user not found",
+			} 
+			c.JSON(404, res)
+			return
+		}
+
+		res = Model.Response{
+			Message: "user found",
+		}
+		c.JSON(200, res )
+
+	}
+}
+
+
+
+func UpdateGuitar(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var res Model.Response
+		var Input Model.AddGuitar	
+
+		guitarID := c.Param("id")
+		
+		err := c.BindJSON(&Input)
+		if err != nil {
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(400, res)
+			return
+		}
+		// fmt.Println(Input)
+		
+		validate = validator.New()
+		err = validate.Struct(Input)
+		if err != nil {
+			fmt.Println(err)
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(400, res)
+			return
+		}
+
+		q := `
+			UPDATE guitars 
+			SET "Brand_Id" = $1,
+				"Name" = $2,
+				"Price" = $3,
+				"Back" = $4, 
+				"Side" = $5, 
+				"Neck" = $6, 
+				"GuitarSize" = $7, 
+				"Description" = $8, 
+				"Image" = $9,
+				"WhereToBuy" = $10
+			WHERE "Id" = $11;
+		`
+		_, err = db.Exec(q,Input.Brand_ID, Input.Guitar_Name, Input.Price, Input.Back_ID, Input.Side_ID, Input.Neck_ID,
+			Input.Size_ID, Input.Description, Input.Image, Input.WhereToBuy, guitarID)
+		if err != nil {
+			fmt.Println(err)
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(502, res)
+			return
+		}
+
+		res = Model.Response{
+			Message: "Success",
+		}
+		c.JSON(200, res )
+
+	}
+}
+
+func DeleteGuitar(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var res Model.Response
+
+		guitarID := c.Param("id")
+
+		q := `
+			DELETE FROM "guitars"
+			WHERE "Id" = $1;
+		`
+		_, err := db.Exec(q,guitarID)
+		if err != nil {
+			fmt.Println(err)
+			res = Model.Response{
+				Message: "Error",
+				Error_Message: err,
+			} 
+			c.JSON(502, res)
+			return
+		}
+
+		res = Model.Response{
+			Message: "Success",
+		}
+		c.JSON(200, res )
+
+	}
 }
