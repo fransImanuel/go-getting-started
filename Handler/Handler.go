@@ -709,10 +709,10 @@ func AllGuitarForAdmin(db *sql.DB) gin.HandlerFunc {
 		var res Model.Response
 
 		q :=`
-			select g."Id", b."Rank" as "Brand_Id", b."Name" as "Brand_Name" , g."Name", g."Price",
-					w1."Rank" as "Back", w1."Name" as "Back_Name", 
-					w2."Rank" as "Side", w2."Name" as "Side_Name", 
-					w3."Rank" as "Neck", w3."Name" as "Neck_Name", 
+			select g."Id", b."Brand_Id" as "Brand_Id", b."Name" as "Brand_Name" , g."Name", g."Price",
+					w1."Wood_Id" as "Back", w1."Name" as "Back_Name", 
+					w2."Wood_Id" as "Side", w2."Name" as "Side_Name", 
+					w3."Wood_Id" as "Neck", w3."Name" as "Neck_Name", 
 					s."Size" as "GuitarSize",
 					g."Description",
 					g."Image",
