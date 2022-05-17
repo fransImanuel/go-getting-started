@@ -709,8 +709,14 @@ func AllGuitarForAdmin(db *sql.DB) gin.HandlerFunc {
 		var res Model.Response
 
 		q :=`
-			select g."Id", b."Rank" as "Brand_Id", b."Name" as "Brand_Name" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Size" as "GuitarSize"
-				from guitars g
+			select g."Id", b."Rank" as "Brand_Id", b."Name" as "Brand_Name" , g."Name", g."Price",
+					w1."Rank" as "Back", w1."Name" as "Back_Name", 
+					w2."Rank" as "Side", w2."Name" as "Side_Name", 
+					w3."Rank" as "Neck", w3."Name" as "Neck_Name", 
+					s."Size" as "GuitarSize",
+					g."Description",
+					g."Image",
+					g."WhereToBuy"
 			join woods w1 on (g."Back" = w1."Wood_Id")
 			join woods w2 on (g."Side" = w2."Wood_Id")
 			join woods w3 on (g."Neck" = w3."Wood_Id")
@@ -731,8 +737,11 @@ func AllGuitarForAdmin(db *sql.DB) gin.HandlerFunc {
 		defer rows.Close()
 
 		for rows.Next() {
-			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Brand_Name, &guitar.Guitar_Name, &guitar.Price,&guitar.Back_ID, 
-					&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize); err != nil {
+			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Brand_Name, &guitar.Guitar_Name, &guitar.Price, 
+					&guitar.Back_ID, &guitar.Back_Name, 
+					&guitar.Side_ID, &guitar.Side_Name,
+					&guitar.Neck_ID, &guitar.Neck_Name,
+					&guitar.GuitarSize,&guitar.Description,&guitar.Image,&guitar.WhereToBuy); err != nil {
 					// fmt.Println(err)
 					res = Model.Response{
 						Message: "Error",
