@@ -717,6 +717,7 @@ func AllGuitarForAdmin(db *sql.DB) gin.HandlerFunc {
 					g."Description",
 					g."Image",
 					g."WhereToBuy"
+			from guitars g	
 			join woods w1 on (g."Back" = w1."Wood_Id")
 			join woods w2 on (g."Side" = w2."Wood_Id")
 			join woods w3 on (g."Neck" = w3."Wood_Id")
