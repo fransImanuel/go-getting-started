@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"sort"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -65,24 +64,10 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			s."Size_Id" = $4 AND --guitarsize
 			b."Brand_Id" = $5 AND --brand
 			g."Price" <= $6 --Price
-		`
-		queryLimit := `
-			ORDER BY g."Id"
-			offset $7 rows fetch next 10 rows only;`
-		page, err := strconv.Atoi(Input.Page)
-		if err != nil {
-			fmt.Println(err)
-			res = Model.Response{
-				Message: "Error",
-				Error_Message: err,
-			} 
-			c.JSON(502, res)
-			return
-		}
-
-		offset := pagination(page)
-		rows, err := db.Query(q+cond+queryLimit,
-			Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice,offset)
+			ORDER BY g."Id"`
+		
+		rows, err := db.Query(q+cond,
+			Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice)
 		if err != nil {
 			fmt.Println("err here 85")
 			fmt.Println(err)
@@ -118,12 +103,9 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				w3."Wood_Id" = $3) AND --neck
 				b."Brand_Id" = $4 AND --brand
 				g."Price" <= $5 --Price
-			`
-			queryLimit = `
-				ORDER BY g."Id"
-				offset $6 rows fetch next 10 rows only;`
-			rows, err = db.Query(q+cond+queryLimit,
-				Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Brand ,Input.UpperPice,offset)
+				ORDER BY g."Id"`
+			rows, err = db.Query(q+cond,
+				Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Brand ,Input.UpperPice)
 			if err != nil {
 				fmt.Println("err here 126")
 				fmt.Println(err)
@@ -161,10 +143,20 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				join sizes s on (g."GuitarSize" = s."Size_Id")
 				join brands b on (g."Brand_Id" = b."Brand_Id")
 			`
+			cond= `
+				where (w1."Wood_Id" = $1 OR --back
+				w2."Wood_Id" = $2 OR --side
+				w3."Wood_Id" = $3) AND --neck
+				b."Brand_Id" = $4 AND --brand
+				g."Price" <= $5 --Price
+				ORDER BY count(g."Id")
+			`
+			
 			
 			rows2, err := db.Query(q+cond,Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.UpperPice)
 			if err != nil {
 				fmt.Println("err here 165")
+				fmt.Println(q+cond)
 				fmt.Println(err)
 				res = Model.Response{
 					Message: "Error",
@@ -201,14 +193,11 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				`
 				cond = `
 					where b."Brand_Id" = $1
-				`
-				queryLimit = `
-					ORDER BY g."Id"
-					offset $2 rows fetch next 10 rows only;`
-				rows, err = db.Query(q+cond+queryLimit, Input.Brand, offset)
+					ORDER BY g."Id"`
+				rows, err = db.Query(q+cond, Input.Brand)
 				if err != nil {
 					fmt.Println("err Here 208")
-					fmt.Println(q+cond+queryLimit)
+					fmt.Println(q+cond)
 					c.JSON(502, Model.Response{
 						Message: "Error",
 						Error_Message: err,
@@ -244,13 +233,13 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 					join sizes s on (g."GuitarSize" = s."Size_Id")
 					join brands b on (g."Brand_Id" = b."Brand_Id")
 				`
-				queryLimit = `
+				cond = `
+					where b."Brand_Id" = $1
 					ORDER BY count(g."Id")`
-				
-				rows2, err := db.Query(q+cond+queryLimit, Input.Brand)
+				rows2, err := db.Query(q+cond, Input.Brand)
 				if err != nil {
 					fmt.Println("err here 250")
-					fmt.Println(q+cond+queryLimit)
+					fmt.Println(q+cond)
 					fmt.Println(err)
 					res = Model.Response{
 						Message: "Error",
