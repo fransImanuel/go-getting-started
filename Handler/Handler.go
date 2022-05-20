@@ -275,9 +275,19 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				join sizes s on (g."GuitarSize" = s."Size_Id")
 				join brands b on (g."Brand_Id" = b."Brand_Id")
 			`
+			cond = `
+				where w1."Wood_Id" = $1 AND --back
+				w2."Wood_Id" = $2 AND --side
+				w3."Wood_Id" = $3 AND --neck
+				s."Size_Id" = $4 AND --guitarsize
+				b."Brand_Id" = $5 AND --brand
+				g."Price" <= $6 --Price
+				ORDER BY count(g."Id")
+			`
 			rows2, err := db.Query(q+cond,Input.Back_ID ,Input.Side_ID ,Input.Neck_ID, Input.Guitarsize ,Input.Brand,Input.UpperPice)
 			if err != nil {
 				fmt.Println("err here 286")
+				fmt.Println(q+cond)
 				fmt.Println(err)
 				res = Model.Response{
 					Message: "Error",
