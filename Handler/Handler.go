@@ -389,7 +389,7 @@ func AllGuitar(db *sql.DB) gin.HandlerFunc {
 		var res Model.Response
 
 		q :=`
-			select g."Id", b."Rank" as "Brand_Id", b."Name" as "Brand_Name" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Size" as "GuitarSize"
+			select g."Id", b."Rank" as "Brand_Id", b."Name" as "Brand_Name" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Rank" as "GuitarSize"
 				from guitars g
 			join woods w1 on (g."Back" = w1."Wood_Id")
 			join woods w2 on (g."Side" = w2."Wood_Id")
@@ -504,16 +504,19 @@ func SAW(guitars []Model.Guitars,db *sql.DB)([]Model.Result,error){
 	//insert divider based on cost/benefit
 	for _, g := range guitars{
 
-		if d.Price <= *g.Price || d.Price == 0  { d.Price = *g.Price }
-		if d.Back >= *g.Back_ID || d.Back == 0 { d.Back = *g.Back_ID }
-		if d.Side >= *g.Side_ID || d.Side == 0 { d.Side = *g.Side_ID }
-		if d.Neck >= *g.Neck_ID || d.Neck == 0 { d.Neck = *g.Neck_ID }
-		if d.Size >= *g.GuitarSize || d.Size == 0 { d.Size = *g.GuitarSize }
-		if d.Brand >= *g.Brand || d.Brand == 0 { d.Brand = *g.Brand }
+		if d.Price >= *g.Price || d.Price == 0  { d.Price = *g.Price }
+		if d.Back <= *g.Back_ID || d.Back == 0 { d.Back = *g.Back_ID }
+		if d.Side <= *g.Side_ID || d.Side == 0 { d.Side = *g.Side_ID }
+		if d.Neck <= *g.Neck_ID || d.Neck == 0 { d.Neck = *g.Neck_ID }
+		if d.Size <= *g.GuitarSize || d.Size == 0 { d.Size = *g.GuitarSize }
+		if d.Brand <= *g.Brand || d.Brand == 0 { d.Brand = *g.Brand }
 	}
+
+	// fmt.Println(d)
 
 	// c = calculate
 	for _, c := range guitars{
+		// fmt.Printf("Guitar_ID: %v, Brand: %v, Brand_Name: %v, Guitar_Name:%v, Price: %v, Back_ID:%v, Side_ID:%v,Neck_ID:%v, GuitarSize:%v\n",	*c.Guitar_ID,*c.Brand,*c.Brand_Name,*c.Guitar_Name,*c.Price,*c.Back_ID,*c.Side_ID,*c.Neck_ID,*c.GuitarSize)
 		n.Guitar_ID = *c.Guitar_ID
 		n.Price =  d.Price / *c.Price
 		n.Back = *c.Back_ID / d.Back
@@ -553,16 +556,16 @@ func SAW(guitars []Model.Guitars,db *sql.DB)([]Model.Result,error){
 	}
 
 	// fmt.Println(cm)
-	// for _, criteria := range cs{
-
-	// }
 
 	//fr = finalResult
 	for _, fr:= range ns{
 		result.Guitar_ID = fr.Guitar_ID
-		result.Rating = (fr.Price * cm["Harga"]) + (fr.Back * cm["Back"]) + (fr.Side * cm["Side"]) + (fr.Neck * cm["Neck"]) + (fr.Size * cm["Size"]) + (fr.Brand * cm["Merk"])
+		result.Rating = (fr.Price * cm["Harga"]) + (fr.Back * cm["Back"]) + (fr.Side * cm["Side"]) + 
+						(fr.Neck * cm["Neck"]) + (fr.Size * cm["Size"]) + (fr.Brand * cm["Merk"])
+		// fmt.Printf("%v, %v, %v, %v, %v, %v\n",fr.Price * cm["Harga"], fr.Back * cm["Back"], fr.Side * cm["Side"], fr.Neck * cm["Neck"], fr.Size * cm["Size"], fr.Brand * cm["Merk"])
 		results = append(results,result)
 	}
+
 
 	//sorting rating
 	sort.SliceStable(results, func(i, j int) bool {
