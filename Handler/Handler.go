@@ -523,7 +523,8 @@ func SAW(guitars []Model.Guitars,db *sql.DB)([]Model.Result,error){
 		n.Side = *c.Side_ID / d.Side
 		n.Neck = *c.Neck_ID / d.Neck
 		n.Size = *c.GuitarSize / d.Size
-		n.Brand = *c.Brand / d.Brand		
+		n.Brand = *c.Brand / d.Brand
+		fmt.Printf("%v | %v, %v, %v, %v, %v, %v\n",n.Guitar_ID,n.Price, n.Back, n.Side, n.Neck, n.Size, n.Brand)		
 		ns = append(ns,n)
 	}
 
@@ -555,14 +556,17 @@ func SAW(guitars []Model.Guitars,db *sql.DB)([]Model.Result,error){
 		
 	}
 
-	// fmt.Println(cm)
+	fmt.Println("\n\nFINAL RESULT\n\n")
+	fmt.Println(cm)
 
 	//fr = finalResult
 	for _, fr:= range ns{
 		result.Guitar_ID = fr.Guitar_ID
 		result.Rating = (fr.Price * cm["Harga"]) + (fr.Back * cm["Back"]) + (fr.Side * cm["Side"]) + 
 						(fr.Neck * cm["Neck"]) + (fr.Size * cm["Size"]) + (fr.Brand * cm["Merk"])
-		// fmt.Printf("%v, %v, %v, %v, %v, %v\n",fr.Price * cm["Harga"], fr.Back * cm["Back"], fr.Side * cm["Side"], fr.Neck * cm["Neck"], fr.Size * cm["Size"], fr.Brand * cm["Merk"])
+		
+		fmt.Printf("%v |harga = %v * %v = %v, %v, %v, %v, %v, %v = %v\n",result.Guitar_ID,fr.Price, cm["Harga"],fr.Price * cm["Harga"], fr.Back * cm["Back"], fr.Side * cm["Side"], fr.Neck * cm["Neck"], fr.Size * cm["Size"], fr.Brand * cm["Merk"],result.Rating)
+		// fmt.Println(result)
 		results = append(results,result)
 	}
 
@@ -572,7 +576,9 @@ func SAW(guitars []Model.Guitars,db *sql.DB)([]Model.Result,error){
 		return results[i].Rating > results[j].Rating
 	})
 
-	// fmt.Println(results)
+	// for _, z:=range results{
+	// 	fmt.Println(z)
+	// }
 
 	return results,nil
 }
