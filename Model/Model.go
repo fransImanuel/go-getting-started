@@ -35,7 +35,7 @@ type RequestGuitar struct {
 	Guitarsize  string `json:"Guitarsize,omitempty"`
 	Brand       string `json:"Brand,omitempty"`
 	BottomPrice string `json:"bottomPrice,omitempty"`
-	UpperPice   string `json:"upperPrice,omitempty"`
+	PriceWeight string `json:"PriceWeight,omitempty"`
 	Page        string `json:"Page,omitempt"`
 }
 
