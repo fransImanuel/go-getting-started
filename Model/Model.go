@@ -33,6 +33,9 @@ type RequestGuitar struct {
 	WoodWeight       string `json:"WoodWeight,omitempty"`
 	GuitarSizeWeight string `json:"GuitarSizeWeight,omitempty"`
 	BrandWeight      string `json:"BrandWeight,omitempty"`
+	BrandId          string `json:"BrandId,omitempty"`
+	UpperPrice       string `json:"UpperPrice,omitempty"`
+	BottomPrice      string `json:"BottomPrice,omitempty"`
 }
 
 type GuitarWeight struct {

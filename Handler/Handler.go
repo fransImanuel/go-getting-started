@@ -34,15 +34,21 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		var Input Model.RequestGuitar		
 		var results []Model.Result
 		var res Model.Response
-		var count int
+		var cond string
+		var rows *sql.Rows
 		
 
 		Input = Model.RequestGuitar{
 			Price:        c.Query("Price"),
 			WoodWeight:        c.Query("WoodWeight"),
-			GuitarSizeWeight:        c.Query("GuitarSizeWeight"),
+			GuitarSizeWeight:  c.Query("GuitarSizeWeight"),
 			BrandWeight:  c.Query("BrandWeight"),
+			BrandId:  c.Query("BrandId"),
+			UpperPrice:  c.Query("UpperPrice"),
+			BottomPrice:  c.Query("BottomPrice"),
 		} 
+
+		
 
 		PriceWeight, err := strconv.Atoi(Input.Price)
 		if err != nil {
@@ -76,7 +82,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			c.JSON(502, res)
 			return
 		}
-
+		
 		BrandWeight, err := strconv.Atoi(Input.BrandWeight)
 		if err != nil {
 			fmt.Println(err)
@@ -95,9 +101,10 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			PriceWeight : PriceWeight,
 		}
 
-		//------
+		// ------
 		// First query to get data based on query params
-		//------
+		// ------
+		
 		q :=`
 			select g."Id", b."Rank" as "Brand_Id" , g."Name", g."Price", w1."Rank" as "Back", w2."Rank" as "Side", w3."Rank" as "Neck", s."Rank" as "GuitarSize", g."Description", g."Image", g."WhereToBuy" 
 			from guitars g
@@ -107,61 +114,11 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 			join sizes s on (g."GuitarSize" = s."Size_Id")
 			join brands b on (g."Brand_Id" = b."Brand_Id")
 		`
-		
-		rows, err := db.Query(q)
-		if err != nil {
-			fmt.Println("err here 103")
-			fmt.Println(err)
-			res = Model.Response{
-				Message: "Error",
-				Error_Message: err,
-			} 
-			c.JSON(502, res)
-			return
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price, &guitar.Back_ID, 
-				&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
-					fmt.Println("err here 117")
-					fmt.Println(err)
-					res = Model.Response{
-						Message: "Error",
-						Error_Message: err,
-					} 
-					c.JSON(502, res)
-					return
-				}
-			guitars = append(guitars, guitar)
-		}
-
-		
-		q =`
-			select count(g."Id")
-			from guitars g
-			join woods w1 on (g."Back" = w1."Wood_Id")
-			join woods w2 on (g."Side" = w2."Wood_Id")
-			join woods w3 on (g."Neck" = w3."Wood_Id")
-			join sizes s on (g."GuitarSize" = s."Size_Id")
-			join brands b on (g."Brand_Id" = b."Brand_Id")
-		`
-		rows, err = db.Query(q)
-		if err != nil {
-			fmt.Println("err here 286")
-			fmt.Println(err)
-			res = Model.Response{
-				Message: "Error",
-				Error_Message: err,
-			} 
-			c.JSON(502, res)
-			return
-		}
-
-		defer rows.Close()
-		for rows.Next() {
-			if err := rows.Scan(&count); err != nil {
-				fmt.Println("err here 155")
+		if Input.BottomPrice == "" {
+			cond = `where g."Brand_Id" = $1 AND g."Price" >= $2`
+			rows, err = db.Query(q+cond,Input.BrandId, Input.UpperPrice)
+			if err != nil {
+				fmt.Println("err here 103")
 				fmt.Println(err)
 				res = Model.Response{
 					Message: "Error",
@@ -170,11 +127,86 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 				c.JSON(502, res)
 				return
 			}
-		}
-		// fmt.Println("count else:")
-		// fmt.Println(count)
-	
+			defer rows.Close()
 
+			for rows.Next() {
+				if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price, &guitar.Back_ID, 
+					&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
+						fmt.Println("err here 117")
+						fmt.Println(err)
+						res = Model.Response{
+							Message: "Error",
+							Error_Message: err,
+						} 
+						c.JSON(502, res)
+						return
+					}
+				guitars = append(guitars, guitar)
+			}
+		}
+
+		if Input.UpperPrice == "" {
+			cond = `where g."Brand_Id" = $1 AND g."Price" <= $2`
+			rows, err = db.Query(q+cond,Input.BrandId, Input.BottomPrice)
+			if err != nil {
+				fmt.Println("err here 103")
+				fmt.Println(err)
+				res = Model.Response{
+					Message: "Error",
+					Error_Message: err,
+				} 
+				c.JSON(502, res)
+				return
+			}
+			defer rows.Close()
+
+			for rows.Next() {
+				if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price, &guitar.Back_ID, 
+					&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
+						fmt.Println("err here 117")
+						fmt.Println(err)
+						res = Model.Response{
+							Message: "Error",
+							Error_Message: err,
+						} 
+						c.JSON(502, res)
+						return
+					}
+				guitars = append(guitars, guitar)
+			}
+		}
+
+		if Input.UpperPrice != "" &&  Input.BottomPrice != ""{
+			cond = `where g."Brand_Id" = $1 AND g."Price" >= $2 AND g."Price" <= $3`
+			rows, err = db.Query(q+cond,Input.BrandId, Input.BottomPrice, Input.UpperPrice)
+			if err != nil {
+				fmt.Println("err here 103")
+				fmt.Println(err)
+				res = Model.Response{
+					Message: "Error",
+					Error_Message: err,
+				} 
+				c.JSON(502, res)
+				return
+			}
+			defer rows.Close()
+
+			for rows.Next() {
+				if err := rows.Scan(&guitar.Guitar_ID, &guitar.Brand, &guitar.Guitar_Name, &guitar.Price, &guitar.Back_ID, 
+					&guitar.Side_ID, &guitar.Neck_ID, &guitar.GuitarSize, &guitar.Description, &guitar.Image, &guitar.WhereToBuy); err != nil {
+						fmt.Println("err here 117")
+						fmt.Println(err)
+						res = Model.Response{
+							Message: "Error",
+							Error_Message: err,
+						} 
+						c.JSON(502, res)
+						return
+					}
+				guitars = append(guitars, guitar)
+			}
+		}
+		
 		results,err = SAW(guitars,db, Weight)
 		if err != nil {
 			fmt.Println("err here 315")
@@ -236,7 +268,7 @@ func GuitarByFilter(db *sql.DB) gin.HandlerFunc {
 		res = Model.Response{
 			Message: "Success",
 			Data: guitars,
-			Total_Data: count,
+			Total_Data: len(guitars),
 		}
 		c.JSON(200, res )
 	}
@@ -432,6 +464,7 @@ func SAW(guitars []Model.Guitars,db *sql.DB, Weight Model.GuitarWeight)([]Model.
 						(fr.Neck * cm["Neck"]) + (fr.Size * cm["Size"]) + (fr.Brand * cm["Merk"])
 		
 		// fmt.Printf("%v |harga = %v * %v = %v, %v, %v, %v, %v, %v = %v\n",result.Guitar_ID,fr.Price, cm["Harga"],fr.Price * cm["Harga"], fr.Back * cm["Back"], fr.Side * cm["Side"], fr.Neck * cm["Neck"], fr.Size * cm["Size"], fr.Brand * cm["Merk"],result.Rating)
+		// fmt.Printf("%v |%v, %v, %v, %v, %v, %v = %v\n",result.Guitar_ID,fr.Price * cm["Harga"], fr.Back * cm["Back"], fr.Side * cm["Side"], fr.Neck * cm["Neck"], fr.Size * cm["Size"], fr.Brand * cm["Merk"],result.Rating)
 		// fmt.Println(result)
 		results = append(results,result)
 	}
