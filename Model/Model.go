@@ -29,14 +29,17 @@ type Response struct {
 }
 
 type RequestGuitar struct {
-	Back_ID     string `json:"Back,omitempty"`
-	Side_ID     string `json:"Side,omitempty"`
-	Neck_ID     string `json:"Neck,omitempty"`
-	Guitarsize  string `json:"Guitarsize,omitempty"`
-	Brand       string `json:"Brand,omitempty"`
-	BottomPrice string `json:"bottomPrice,omitempty"`
-	PriceWeight string `json:"PriceWeight,omitempty"`
-	Page        string `json:"Page,omitempt"`
+	Price            string `json:"Price,omitempty"`
+	WoodWeight       string `json:"WoodWeight,omitempty"`
+	GuitarSizeWeight string `json:"GuitarSizeWeight,omitempty"`
+	BrandWeight      string `json:"BrandWeight,omitempty"`
+}
+
+type GuitarWeight struct {
+	PriceWeight      int
+	WoodWeight       int
+	GuitarSizeWeight int
+	BrandWeight      int
 }
 
 type Divider struct {
