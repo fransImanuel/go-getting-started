@@ -386,6 +386,7 @@ func SAW(guitars []Model.Guitars,db *sql.DB, Weight Model.GuitarWeight)([]Model.
 	var ns []Model.Divider //Normalization
 	var result Model.Result
 	var results []Model.Result
+	var WeightTotal float64
 	
 	//insert divider based on cost/benefit
 	for _, g := range guitars{
@@ -410,7 +411,7 @@ func SAW(guitars []Model.Guitars,db *sql.DB, Weight Model.GuitarWeight)([]Model.
 		n.Neck = *c.Neck_ID / d.Neck
 		n.Size = *c.GuitarSize / d.Size
 		n.Brand = *c.Brand / d.Brand
-		// fmt.Printf("%v | %v, %v, %v, %v, %v, %v\n",n.Guitar_ID,n.Price, n.Back, n.Side, n.Neck, n.Size, n.Brand)		
+		fmt.Printf("%v | %v, %v, %v, %v, %v, %v\n",n.Guitar_ID,n.Price, n.Back, n.Side, n.Neck, n.Size, n.Brand)		
 		ns = append(ns,n)
 	}
 
@@ -443,19 +444,21 @@ func SAW(guitars []Model.Guitars,db *sql.DB, Weight Model.GuitarWeight)([]Model.
 			
 		}
 	}else{
-		cm["Harga"] = float64(Weight.PriceWeight)/30
-		cm["Back"] = float64(Weight.WoodWeight)/30
-		cm["Side"] = float64(Weight.WoodWeight)/30
-		cm["Neck"] = float64(Weight.WoodWeight)/30
-		cm["Merk"] = float64(Weight.BrandWeight)/30
-		cm["Size"] = float64(Weight.GuitarSizeWeight)/30
+		WeightTotal =  float64(Weight.PriceWeight) + float64((Weight.WoodWeight*3)) +float64(Weight.BrandWeight)+float64(Weight.GuitarSizeWeight)
+		fmt.Printf("WeightTotal = %v",WeightTotal)
+		cm["Harga"] = float64(Weight.PriceWeight)/WeightTotal
+		cm["Back"] = float64(Weight.WoodWeight)/WeightTotal
+		cm["Side"] = float64(Weight.WoodWeight)/WeightTotal
+		cm["Neck"] = float64(Weight.WoodWeight)/WeightTotal
+		cm["Merk"] = float64(Weight.BrandWeight)/WeightTotal
+		cm["Size"] = float64(Weight.GuitarSizeWeight)/WeightTotal
 	}
 
 	
 
 
-	// fmt.Println("\n\nFINAL RESULT\n\n")
-	// fmt.Println(cm)
+	fmt.Println("\n\nFINAL RESULT\n\n")
+	fmt.Println(cm)
 
 	//fr = finalResult
 	for _, fr:= range ns{
@@ -464,7 +467,7 @@ func SAW(guitars []Model.Guitars,db *sql.DB, Weight Model.GuitarWeight)([]Model.
 						(fr.Neck * cm["Neck"]) + (fr.Size * cm["Size"]) + (fr.Brand * cm["Merk"])
 		
 		// fmt.Printf("%v |harga = %v * %v = %v, %v, %v, %v, %v, %v = %v\n",result.Guitar_ID,fr.Price, cm["Harga"],fr.Price * cm["Harga"], fr.Back * cm["Back"], fr.Side * cm["Side"], fr.Neck * cm["Neck"], fr.Size * cm["Size"], fr.Brand * cm["Merk"],result.Rating)
-		// fmt.Printf("%v |%v, %v, %v, %v, %v, %v = %v\n",result.Guitar_ID,fr.Price * cm["Harga"], fr.Back * cm["Back"], fr.Side * cm["Side"], fr.Neck * cm["Neck"], fr.Size * cm["Size"], fr.Brand * cm["Merk"],result.Rating)
+		fmt.Printf("%v |%v, %v, %v, %v, %v, %v = %v\n",result.Guitar_ID,fr.Price * cm["Harga"], fr.Back * cm["Back"], fr.Side * cm["Side"], fr.Neck * cm["Neck"], fr.Size * cm["Size"], fr.Brand * cm["Merk"],result.Rating)
 		// fmt.Println(result)
 		results = append(results,result)
 	}
