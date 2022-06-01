@@ -434,21 +434,21 @@ func SAW(guitars []Model.Guitars,db *sql.DB, Weight Model.GuitarWeight)([]Model.
 				return []Model.Result{}, err
 			}
 			
-			if c.Criteria_Name == "Harga"{cm["Harga"] = c.Value}
-			if c.Criteria_Name == "Back" {cm["Back"] = c.Value}
-			if c.Criteria_Name == "Side" {cm["Side"] = c.Value}
-			if c.Criteria_Name == "Neck" {cm["Neck"] = c.Value}
-			if c.Criteria_Name == "Merk" {cm["Merk"] = c.Value}
-			if c.Criteria_Name == "Size" {cm["Size"] = c.Value}
+			if c.Criteria_Name == "Harga"{cm["Harga"] = c.Value / 39}
+			if c.Criteria_Name == "Back" {cm["Back"] = c.Value / 39}
+			if c.Criteria_Name == "Side" {cm["Side"] = c.Value / 39}
+			if c.Criteria_Name == "Neck" {cm["Neck"] = c.Value / 39}
+			if c.Criteria_Name == "Merk" {cm["Merk"] = c.Value / 39}
+			if c.Criteria_Name == "Size" {cm["Size"] = c.Value / 39}
 			
 		}
 	}else{
-		cm["Harga"] = float64(Weight.PriceWeight)
-		cm["Back"] = float64(Weight.WoodWeight)
-		cm["Side"] = float64(Weight.WoodWeight)
-		cm["Neck"] = float64(Weight.WoodWeight)
-		cm["Merk"] = float64(Weight.BrandWeight)
-		cm["Size"] = float64(Weight.GuitarSizeWeight)
+		cm["Harga"] = float64(Weight.PriceWeight)/30
+		cm["Back"] = float64(Weight.WoodWeight)/30
+		cm["Side"] = float64(Weight.WoodWeight)/30
+		cm["Neck"] = float64(Weight.WoodWeight)/30
+		cm["Merk"] = float64(Weight.BrandWeight)/30
+		cm["Size"] = float64(Weight.GuitarSizeWeight)/30
 	}
 
 	
