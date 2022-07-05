@@ -1,4 +1,4 @@
-
+Golang Backend untuk skripsi (skripsi-saw-gitar-2022-be)
 # go-getting-started
 
 A barebones Go app, which can easily be deployed to Heroku.
