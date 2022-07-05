@@ -26,7 +26,7 @@ func main() {
 	
 
 	// comment this for local testing
-	// db_url := "postgres://snrqhapoddkcil:d28075e479a43de8d3563ed9bb676e3278b4b4cb27be41af9eb315243f379654@ec2-54-165-184-219.compute-1.amazonaws.com:5432/d9q283dkhak1u0"
+	// db_url := "db_url_from_herokupostgresql"
 	// db, err := sql.Open("postgres", db_url)
 	//comment this for local testing
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
@@ -61,4 +61,6 @@ func main() {
 	router.POST("/login",Handler.Login(db))
 
 	router.Run(":" + port)
+
+	
 }
