@@ -1,3 +1,5 @@
+# Golang Backend untuk skripsi (skripsi-saw-gitar-2022-be)
+
 
 # go-getting-started
 
